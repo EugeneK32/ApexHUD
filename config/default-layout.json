@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "display": "primary",
+  "snapGrid": 8,
+  "instances": [
+    {
+      "instanceId": "radar-main",
+      "moduleId": "com.apexhud.radar",
+      "enabled": true,
+      "zIndex": 20,
+      "bounds": {
+        "x": 0.46,
+        "y": 0.74,
+        "width": 0.08,
+        "height": 0.1
+      },
+      "settings": {
+        "scale": 1,
+        "approachDistance": 16,
+        "accent": "#e5e7eb",
+        "danger": "#ef4444",
+        "opacity": 0.94,
+        "nearby": "#f2c94c"
+      }
+    },
+    {
+      "instanceId": "standings-main",
+      "moduleId": "com.apexhud.standings",
+      "enabled": true,
+      "zIndex": 10,
+      "bounds": {
+        "x": 0.018,
+        "y": 0.12,
+        "width": 0.27,
+        "height": 0.58
+      },
+      "settings": {
+        "rows": 12,
+        "mode": "auto",
+        "showIRating": false,
+        "showLicense": false,
+        "showLastLap": false,
+        "compact": false,
+        "accent": "#f2c94c",
+        "opacity": 0.92
+      }
+    },
+    {
+      "instanceId": "delta-main",
+      "moduleId": "com.apexhud.delta",
+      "enabled": true,
+      "zIndex": 18,
+      "bounds": {
+        "x": 0.405,
+        "y": 0.035,
+        "width": 0.19,
+        "height": 0.105
+      },
+      "settings": {
+        "showTimes": true,
+        "decimals": 3,
+        "gainColor": "#36c96b",
+        "lossColor": "#ef4444",
+        "opacity": 0.9
+      }
+    },
+    {
+      "instanceId": "dashboard-main",
+      "moduleId": "com.apexhud.dashboard",
+      "enabled": true,
+      "zIndex": 17,
+      "bounds": {
+        "x": 0.39,
+        "y": 0.845,
+        "width": 0.22,
+        "height": 0.12
+      },
+      "settings": {
+        "speedUnit": "kmh",
+        "accent": "#f2f2f2",
+        "shiftColor": "#ef4444",
+        "opacity": 0.9,
+        "warningColor": "#f2c94c",
+        "downshiftColor": "#54a9d1"
+      }
+    },
+    {
+      "instanceId": "inputs-main",
+      "moduleId": "com.apexhud.inputs",
+      "enabled": true,
+      "zIndex": 12,
+      "bounds": {
+        "x": 0.16,
+        "y": 0.79,
+        "width": 0.19,
+        "height": 0.17
+      },
+      "settings": {
+        "throttleColor": "#42d36f",
+        "brakeColor": "#ff5252",
+        "clutchColor": "#d8dde5",
+        "showClutch": true,
+        "historySeconds": 4,
+        "lineWidth": 1.8,
+        "opacity": 0.84
+      }
+    },
+    {
+      "instanceId": "fuel-main",
+      "moduleId": "com.apexhud.fuel",
+      "enabled": true,
+      "zIndex": 13,
+      "bounds": {
+        "x": 0.78,
+        "y": 0.79,
+        "width": 0.2,
+        "height": 0.15
+      },
+      "settings": {
+        "safetyMargin": 0.2,
+        "accent": "#f2c94c",
+        "opacity": 0.9
+      }
+    },
+    {
+      "instanceId": "relative-main",
+      "moduleId": "com.apexhud.relative",
+      "enabled": true,
+      "zIndex": 11,
+      "bounds": {
+        "x": 0.775,
+        "y": 0.19,
+        "width": 0.205,
+        "height": 0.43
+      },
+      "settings": {
+        "rows": 6,
+        "showNames": true,
+        "accent": "#179fc4",
+        "opacity": 0.9,
+        "hideWhenEmpty": true
+      }
+    },
+    {
+      "instanceId": "session-main",
+      "moduleId": "com.apexhud.session",
+      "enabled": true,
+      "zIndex": 14,
+      "bounds": {
+        "x": 0.76,
+        "y": 0.035,
+        "width": 0.22,
+        "height": 0.105
+      },
+      "settings": {
+        "showTrack": true,
+        "accent": "#179fc4",
+        "opacity": 0.9
+      }
+    },
+    {
+      "instanceId": "position-main",
+      "moduleId": "com.apexhud.position",
+      "enabled": false,
+      "zIndex": 15,
+      "bounds": {
+        "x": 0.018,
+        "y": 0.035,
+        "width": 0.16,
+        "height": 0.12
+      },
+      "settings": {
+        "showDriver": true,
+        "accent": "#f2c94c",
+        "opacity": 0.9,
+        "mode": "auto"
+      }
+    },
+    {
+      "instanceId": "race-control-main",
+      "moduleId": "com.apexhud.race-control",
+      "enabled": false,
+      "zIndex": 16,
+      "bounds": {
+        "x": 0.405,
+        "y": 0.16,
+        "width": 0.19,
+        "height": 0.065
+      },
+      "settings": {
+        "hideWhenClear": false,
+        "opacity": 0.88,
+        "showIncidents": true
+      }
+    },
+    {
+      "instanceId": "lap-times-main",
+      "moduleId": "com.apexhud.lap-times",
+      "enabled": false,
+      "zIndex": 15,
+      "bounds": {
+        "x": 0.61,
+        "y": 0.79,
+        "width": 0.16,
+        "height": 0.13
+      },
+      "settings": {
+        "decimals": 3,
+        "opacity": 0.9
+      }
+    },
+    {
+      "instanceId": "incidents-main",
+      "moduleId": "com.apexhud.incidents",
+      "enabled": false,
+      "zIndex": 16,
+      "bounds": {
+        "x": 0.185,
+        "y": 0.035,
+        "width": 0.085,
+        "height": 0.105
+      },
+      "settings": {
+        "hideAtZero": false,
+        "warningAt": 8,
+        "dangerAt": 12,
+        "opacity": 0.88
+      }
+    }
+  ],
+  "migrationVersion": 11
+}

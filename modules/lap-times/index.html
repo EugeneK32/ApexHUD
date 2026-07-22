@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Lap Times</title>
+  </head>
+  <body>
+    <main id="times">
+      <i class="accent-rail"></i>
+      <header><span>LAP TIMES</span><div><i id="validity"></i><b id="validity-label">NO DATA</b></div></header>
+      <section>
+        <div class="time-row current"><small>CURRENT</small><b id="current">—</b></div>
+        <div class="time-row last"><small>LAST</small><b id="last">—</b></div>
+        <div class="time-row best"><small>BEST</small><b id="best">—</b></div>
+      </section>
+      <footer><span id="lap">LAP —</span><b id="delta">NO REFERENCE</b></footer>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

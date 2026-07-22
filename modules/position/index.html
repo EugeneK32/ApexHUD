@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Position</title>
+  </head>
+  <body>
+    <main id="position">
+      <i class="accent-rail"></i>
+      <header>
+        <span id="context">RACE POSITION</span>
+        <b id="car-number">#--</b>
+      </header>
+      <section class="position-body">
+        <div class="primary-position">
+          <small id="primary-label">POSITION</small>
+          <strong id="primary">—</strong>
+          <em id="class-name">WAITING FOR SESSION</em>
+        </div>
+        <div class="secondary-metrics">
+          <div><small id="secondary-label">FIELD</small><b id="secondary">—</b></div>
+          <div><small>LAP</small><b id="lap">—</b></div>
+        </div>
+      </section>
+      <footer><span id="driver">Player</span><b id="status">WAITING</b></footer>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

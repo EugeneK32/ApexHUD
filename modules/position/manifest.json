@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.position",
+  "name": "Position",
+  "description": "Glanceable race position that automatically shows class position in multiclass sessions and filters timing-line flicker.",
+  "version": "3.1.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "player",
+    "session",
+    "standings"
+  ],
+  "defaultBounds": {
+    "x": 0.018,
+    "y": 0.035,
+    "width": 0.16,
+    "height": 0.13
+  },
+  "minimumSize": {
+    "width": 240,
+    "height": 115
+  },
+  "settings": [
+    {
+      "key": "mode",
+      "label": "Main position",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "label": "Automatic (class in multiclass)",
+          "value": "auto"
+        },
+        {
+          "label": "Overall position",
+          "value": "overall"
+        },
+        {
+          "label": "Class position",
+          "value": "class"
+        }
+      ],
+      "help": "Automatic shows your class position in multiclass races and overall position in single-class races."
+    },
+    {
+      "key": "showDriver",
+      "label": "Show driver name",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "accent",
+      "label": "Position color",
+      "type": "color",
+      "default": "#19bfe6"
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

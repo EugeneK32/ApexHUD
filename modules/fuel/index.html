@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Fuel</title>
+  </head>
+  <body>
+    <main id="fuel">
+      <i class="accent-rail"></i>
+      <header><span>FUEL STRATEGY</span><b id="status">LEARNING</b></header>
+      <section class="metrics">
+        <div class="metric primary"><span>REMAINING</span><strong id="level">—</strong><small>LITERS</small></div>
+        <div class="metric"><span>AVG / LAP</span><strong id="per-lap">—</strong><small>L / LAP</small></div>
+        <div class="metric"><span>EST. LAPS</span><strong id="laps">—</strong><small>LAPS</small></div>
+      </section>
+      <footer>
+        <div class="sample-track"><i id="sample-bar"></i></div>
+        <span>ADD TO FINISH <b id="add">—</b></span>
+      </footer>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

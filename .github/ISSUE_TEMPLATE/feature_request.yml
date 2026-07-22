@@ -1,0 +1,22 @@
+name: Feature request / Предложение
+description: Propose a focused improvement / Предложить улучшение
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Проблема
+      description: Describe the driving or workflow problem, not only a UI control.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / Предлагаемое поведение
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Racing context and alternatives / Контекст и альтернативы

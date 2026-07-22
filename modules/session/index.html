@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Session</title>
+  </head>
+  <body>
+    <main id="session">
+      <div class="accent-rail"><div class="flag" id="flag"></div></div>
+      <section class="session-copy">
+        <header><span class="eyebrow">SESSION</span><b id="type">WAITING</b></header>
+        <strong id="time">--:--</strong>
+        <small id="track">Waiting for iRacing</small>
+      </section>
+      <aside class="laps-block">
+        <span>LAPS<br />REMAINING</span>
+        <div><b id="laps">—</b><small id="lap-suffix"></small></div>
+      </aside>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

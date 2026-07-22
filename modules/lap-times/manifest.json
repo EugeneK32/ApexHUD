@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.lap-times",
+  "name": "Lap Times",
+  "description": "Current, last and best laps with clean-lap validity and live delta status.",
+  "version": "2.0.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "timing"
+  ],
+  "defaultBounds": {
+    "x": 0.61,
+    "y": 0.79,
+    "width": 0.16,
+    "height": 0.16
+  },
+  "minimumSize": {
+    "width": 280,
+    "height": 130
+  },
+  "settings": [
+    {
+      "key": "decimals",
+      "label": "Delta decimals",
+      "type": "range",
+      "default": 3,
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

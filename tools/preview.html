@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ApexHUD Module Preview</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif; color: white; background: #1b2520; }
+      body { position: relative; overflow: hidden; }
+      body::before { content: ""; position: fixed; inset: 0; background:
+        linear-gradient(180deg, rgba(90,130,90,.45) 0 31%, rgba(105,105,94,.52) 32% 47%, rgba(41,43,44,.95) 48% 100%),
+        repeating-linear-gradient(90deg, transparent 0 119px, rgba(255,255,255,.04) 120px);
+      }
+      body::after { content: ""; position: fixed; left: 42%; right: 42%; top: 49%; bottom: 0; background: rgba(255,255,255,.05); transform: perspective(420px) rotateX(58deg); transform-origin: top; }
+      .label { position: fixed; top: 15px; left: 18px; color: rgba(255,255,255,.7); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+      .label b { display: block; margin-top: 4px; color: white; font-size: 19px; letter-spacing: -.02em; }
+      iframe { position: absolute; border: 0; background: transparent; }
+      #standings { left: 18px; top: 74px; width: 500px; height: 620px; }
+      #session { right: 18px; top: 18px; width: 430px; height: 104px; }
+      #relative { right: 18px; top: 140px; width: 370px; height: 370px; }
+      #fuel { right: 18px; bottom: 20px; width: 330px; height: 150px; }
+      #delta { left: 43%; top: 20px; width: 320px; height: 105px; }
+      #dashboard { left: 39%; bottom: 18px; width: 430px; height: 120px; }
+      #inputs { left: 16%; bottom: 18px; width: 300px; height: 170px; }
+      #radar { left: 57%; top: 51%; width: 200px; height: 150px; transform: translate(-50%, -50%); }
+      #position { left: 18px; top: 18px; width: 250px; height: 105px; }
+      #incidents { left: 280px; top: 18px; width: 120px; height: 105px; }
+      #race-control { left: 43%; top: 135px; width: 320px; height: 68px; }
+      #lap-times { right: 360px; bottom: 20px; width: 300px; height: 135px; }
+    </style>
+  </head>
+  <body>
+    <div class="label">BROADCAST VISUAL SYSTEM<b>ApexHUD / Spa</b></div>
+    <iframe id="standings" src="/modules/standings/index.html"></iframe>
+    <iframe id="session" src="/modules/session/index.html"></iframe>
+    <iframe id="relative" src="/modules/relative/index.html"></iframe>
+    <iframe id="fuel" src="/modules/fuel/index.html"></iframe>
+    <iframe id="delta" src="/modules/delta/index.html"></iframe>
+    <iframe id="dashboard" src="/modules/dashboard/index.html"></iframe>
+    <iframe id="inputs" src="/modules/inputs/index.html"></iframe>
+    <iframe id="radar" src="/modules/radar/index.html"></iframe>
+    <iframe id="position" src="/modules/position/index.html"></iframe>
+    <iframe id="incidents" src="/modules/incidents/index.html"></iframe>
+    <iframe id="race-control" src="/modules/race-control/index.html"></iframe>
+    <iframe id="lap-times" src="/modules/lap-times/index.html"></iframe>
+    <script>
+      const names = ["Matthew Naylor","Sindre Setsaas","Samuel Libeert","Antti Terho","Renan Azeredo","Marco Acunto","Fabian Seischegg","Adalilo Vieira","Neil Cooper","Rick Zwieten","Istvan Fodor","Alexander Fescov","Marius Rieck","Preston Perlmutter","Daniel Costa","Felix Wagner"];
+      const entries = names.map((driverName, index) => ({
+        carIndex: index, position: index + 1, classPosition: index + 1,
+        carNumber: String(1 + index * 3), driverName, teamName: index % 4 === 0 ? "Vector Racing" : "",
+        carClassId: index < 11 ? 101 : 202, carClassName: index < 11 ? "GT3" : "LMP2",
+        iRating: 8100 - index * 370, license: ["A 4.62","B 3.42","A 2.10","C 3.05"][index % 4],
+        lap: 18, lapDistancePercent: .7 - index * .004,
+        gapToLeaderSeconds: index ? index * 1.37 : 0, intervalSeconds: index ? 1.37 : 0,
+        lastLapSeconds: 98.321 + index * .16, bestLapSeconds: 97.98 + index * .13,
+        onPitRoad: index === 8, isPlayer: index === 10, status: index === 8 ? "pit" : "running"
+      }));
+      const relativeEntries = entries.filter(x => !x.isPlayer).slice(6,14).map((x, index) => ({
+        carIndex: x.carIndex, carNumber: x.carNumber, driverName: x.driverName, carClassName: x.carClassName,
+        position: x.position, relation: index < 4 ? "ahead" : "behind", distanceMeters: (index < 4 ? 1 : -1) * (15 + index * 8),
+        estimatedGapSeconds: .6 + index * .5, onPitRoad: x.onPitRoad, isPlayer: false
+      }));
+      let sequence = 0;
+      function send() {
+        const t = performance.now() / 1000;
+        const phase = t % 12;
+        const contacts = phase < 5
+          ? [{ carIndex: 8, side: "right", longitudinalMeters: -7 + phase * 1.6, closingSpeedMetersPerSecond: 6.2, overlap: Math.max(.28, phase / 5), threat: phase > 3.4 ? "critical" : "warning", confidence: .96, isApproaching: true }]
+          : phase < 8
+            ? [{ carIndex: 8, side: "right", longitudinalMeters: .8, closingSpeedMetersPerSecond: .2, overlap: .92, threat: "critical", confidence: .98, isApproaching: false }, { carIndex: 6, side: "left", longitudinalMeters: -1.5, closingSpeedMetersPerSecond: 1.1, overlap: .76, threat: "critical", confidence: .91, isApproaching: true }]
+            : [{ carIndex: 6, side: "left", longitudinalMeters: 1.4 + (phase - 8) * 2, closingSpeedMetersPerSecond: -1.2, overlap: .55, threat: "warning", confidence: .94, isApproaching: false }];
+        const payload = {
+          source: "mock",
+          connection: { connected: true, status: "Connected", tickRate: 60, framesDropped: 0, simulatorWindow: { processRunning: true, windowFound: true, isVisible: true, isMinimized: false, isForeground: true } },
+          session: { sessionNumber: 0, state: 4, sessionType: "Race", sessionName: "Race", eventType: "Race", trackName: "Spa-Francorchamps", trackLengthMeters: 7004, timeRemainingSeconds: 1204 - t, hasTimeLimit: true, lapsRemaining: 22, hasLapLimit: true, flags: 4, isReplayPlaying: false, isInGarage: false },
+          player: { carIndex: 10, name: names[10], carNumber: entries[10].carNumber, position: 11, classPosition: 11, lap: 18, lapDistancePercent: .67, speedMetersPerSecond: 61, fuelLiters: 42.8, lastLapSeconds: 99.9, bestLapSeconds: 98.3, incidentCount: 3, onPitRoad: false, isOnTrack: true },
+          vehicle: { speedMetersPerSecond: 61, gear: 4, rpm: 6900 + Math.sin(t * 2) * 450, shiftRpm: 7600, throttle: .86, brake: .12, clutch: 0, steeringWheelAngleRadians: Math.sin(t) * .35, onPitRoad: false, trackSurface: 3 },
+          timing: { currentLap: 18, completedLaps: 17, currentLapSeconds: 61.82, lastLapSeconds: 99.9, bestLapSeconds: 98.3, deltaToBestSeconds: Math.sin(t / 2) * .42, deltaAvailable: true, currentLapValid: true, validity: "valid" },
+          fuel: { levelLiters: 42.8, usePerHourLiters: 96, estimatedPerLapLiters: 2.61, estimatedLapsRemaining: 16.4, requiredToFinishLiters: 57.4, addToFinishLiters: 14.6, samples: 5, estimateReady: true },
+          standings: { mode: "overall", entries },
+          relative: { entries: relativeEntries },
+          radar: { spotterState: contacts.length === 2 ? "both-sides" : contacts[0]?.side === "left" ? "car-left" : "car-right", active: true, contacts }
+        };
+        for (const frame of document.querySelectorAll("iframe")) {
+          frame.contentWindow?.postMessage({ type: "apex:frame", protocolVersion: 3, sequence: ++sequence, timestamp: new Date().toISOString(), payload }, "*");
+        }
+      }
+      for (const frame of document.querySelectorAll("iframe")) {
+        frame.addEventListener("load", () => {
+          frame.contentWindow?.postMessage({ type: "apex:init", protocolVersion: 3, moduleId: frame.id, instanceId: frame.id, settings: {}, source: "mock" }, "*");
+          frame.contentWindow?.postMessage({ type: "apex:visibility", visible: true, editMode: false }, "*");
+          send();
+        });
+      }
+      setInterval(send, 50);
+    </script>
+  </body>
+</html>

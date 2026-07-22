@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" style="background:transparent">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Proximity Radar</title>
+  </head>
+  <body style="background:transparent">
+    <main id="radar" class="radar" aria-label="Proximity radar">
+      <section class="field">
+        <i class="road-line road-line-left"></i>
+        <i class="road-line road-line-right"></i>
+        <div class="lane lane-left"><div id="left-contacts" class="contacts"></div></div>
+        <div class="player" aria-label="Your car"><i></i><b></b></div>
+        <div class="lane lane-right"><div id="right-contacts" class="contacts"></div></div>
+      </section>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

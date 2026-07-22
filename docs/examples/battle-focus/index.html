@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Battle Focus</title>
+  </head>
+  <body>
+    <main id="widget" aria-label="Battle Focus">
+      <header>
+        <span id="title">BATTLE</span>
+        <span id="mode">OVERALL</span>
+      </header>
+
+      <section class="rows" aria-live="polite">
+        <article class="driver-row ahead" data-row="ahead">
+          <span class="relation" data-field="relation">AHEAD</span>
+          <strong class="position" data-field="position">—</strong>
+          <span class="number" data-field="number">--</span>
+          <span class="name" data-field="name">No car</span>
+          <span class="gap" data-field="gap">—</span>
+          <span class="status" data-field="status"></span>
+        </article>
+
+        <article class="driver-row player" data-row="player">
+          <span class="relation" data-field="relation">YOU</span>
+          <strong class="position" data-field="position">—</strong>
+          <span class="number" data-field="number">--</span>
+          <span class="name" data-field="name">Waiting for telemetry</span>
+          <span class="gap" data-field="gap">—</span>
+          <span class="status" data-field="status"></span>
+        </article>
+
+        <article class="driver-row behind" data-row="behind">
+          <span class="relation" data-field="relation">BEHIND</span>
+          <strong class="position" data-field="position">—</strong>
+          <span class="number" data-field="number">--</span>
+          <span class="name" data-field="name">No car</span>
+          <span class="gap" data-field="gap">—</span>
+          <span class="status" data-field="status"></span>
+        </article>
+      </section>
+    </main>
+
+    <script src="module.js"></script>
+  </body>
+</html>

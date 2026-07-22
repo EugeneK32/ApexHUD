@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "id": "com.example.apexhud.battle-focus",
+  "name": "Battle Focus",
+  "description": "Glanceable three-car battle view showing the nearest car ahead, the player and the nearest car behind.",
+  "version": "1.0.0",
+  "author": "ApexHUD documentation example",
+  "entry": "index.html",
+  "scopes": [
+    "session",
+    "player",
+    "standings"
+  ],
+  "defaultBounds": {
+    "x": 0.76,
+    "y": 0.38,
+    "width": 0.21,
+    "height": 0.22
+  },
+  "minimumSize": {
+    "width": 300,
+    "height": 170
+  },
+  "settings": [
+    {
+      "key": "mode",
+      "label": "Cars to compare",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "label": "Automatic",
+          "value": "auto"
+        },
+        {
+          "label": "Overall",
+          "value": "overall"
+        },
+        {
+          "label": "My class",
+          "value": "class"
+        }
+      ],
+      "help": "Automatic uses class position in multiclass sessions and overall position otherwise."
+    },
+    {
+      "key": "showNames",
+      "label": "Show driver names",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "accent",
+      "label": "Player highlight",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.3,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}
