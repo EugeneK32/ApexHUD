@@ -127,8 +127,28 @@ public sealed record VehicleState(
     int TrackSurface,
     int TrackSurfaceMaterial)
 {
-    public static VehicleState Empty { get; } =
-        new(0, 0, 0, 0, 0, 0, 0, null, 0, null, 0, null, null, 0, null, null, null, false, 0, 0);
+    public static VehicleState Empty { get; } = new(
+        SpeedMetersPerSecond: 0,
+        Gear: 0,
+        Rpm: 0,
+        ShiftLightFirstRpm: 0,
+        ShiftRpm: 0,
+        ShiftLightLastRpm: 0,
+        ShiftLightBlinkRpm: 0,
+        Throttle: 0,
+        ThrottleRaw: null,
+        Brake: 0,
+        BrakeRaw: null,
+        Clutch: 0,
+        Handbrake: null,
+        HandbrakeRaw: null,
+        SteeringWheelAngleRadians: 0,
+        SteeringWheelAngleMaxRadians: null,
+        ShiftIndicatorPercent: null,
+        ShiftPowerPercent: null,
+        OnPitRoad: false,
+        TrackSurface: 0,
+        TrackSurfaceMaterial: 0);
 }
 
 public sealed record DriverAidsState(
