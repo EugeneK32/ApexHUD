@@ -91,9 +91,6 @@ jobs:
             --self-contained false `
             --output .\services\telemetry\publish
 
-      - name: Bootstrap semantic-release baseline
-        run: node scripts/ensure-release-baseline.mjs
-
       - name: Create version, changelog and GitHub release
         shell: pwsh
         run: |
