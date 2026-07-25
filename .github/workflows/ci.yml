@@ -40,3 +40,70 @@ jobs:
 
       - name: Build telemetry service
         run: dotnet build ApexHUD.sln --configuration Release --no-restore
+
+  release:
+    name: Release portable Windows build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: windows-latest
+    timeout-minutes: 30
+    concurrency:
+      group: apexhud-release-main
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      GIT_AUTHOR_NAME: github-actions[bot]
+      GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      GIT_COMMITTER_NAME: github-actions[bot]
+      GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install frontend dependencies
+        run: npm ci --include=dev
+
+      - name: Publish telemetry service
+        shell: pwsh
+        run: |
+          Remove-Item .\services\telemetry\publish -Recurse -Force -ErrorAction SilentlyContinue
+          dotnet publish .\services\telemetry\ApexHUD.Telemetry.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained false `
+            --output .\services\telemetry\publish
+
+      - name: Bootstrap semantic-release baseline
+        run: node scripts/ensure-release-baseline.mjs
+
+      - name: Create version, changelog and GitHub release
+        shell: pwsh
+        run: |
+          npm exec --yes `
+            --package=semantic-release@25.0.8 `
+            --package=@semantic-release/commit-analyzer@13.0.1 `
+            --package=@semantic-release/release-notes-generator@14.1.1 `
+            --package=@semantic-release/changelog@7.0.0 `
+            --package=@semantic-release/exec@7.1.0 `
+            --package=@semantic-release/github@12.0.9 `
+            --package=@semantic-release/git@11.0.1 `
+            --package=conventional-changelog-conventionalcommits@10.2.1 `
+            -- semantic-release
