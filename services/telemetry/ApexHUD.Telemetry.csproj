@@ -4,7 +4,7 @@
     <RootNamespace>ApexHUD.Telemetry</RootNamespace>
     <AssemblyName>ApexHUD.Telemetry</AssemblyName>
     <OutputType>Exe</OutputType>
-    <Version>0.11.0</Version>
+    <Version>0.11.1</Version>
     <Authors>ApexHUD contributors</Authors>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <InvariantGlobalization>false</InvariantGlobalization>

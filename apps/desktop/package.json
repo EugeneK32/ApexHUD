@@ -1,6 +1,6 @@
 {
   "name": "@apexhud/desktop",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "private": true,
   "type": "module",
   "main": "dist-main/main/index.js",
@@ -21,7 +21,7 @@
     "verify:manifests": "node ../../scripts/verify-manifests.mjs"
   },
   "dependencies": {
-    "@apexhud/protocol": "0.11.0"
+    "@apexhud/protocol": "0.11.1"
   },
   "devDependencies": {
     "@types/node": "26.1.1",

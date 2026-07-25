@@ -1,5 +1,11 @@
 # Changelog
 
+All notable changes to ApexHUD are documented here.
+
+## [0.11.1](https://github.com/EugeneK32/ApexHUD/compare/v0.11.0...v0.11.1) (2026-07-25)
+
+# Changelog
+
 All notable changes are documented here. The project follows semantic versioning while in early beta.
 
 ## [0.11.0] - 2026-07-25
