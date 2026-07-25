@@ -1,13 +1,46 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { createInputsHarness } from "./helpers/inputsHarness";
 
 const root = path.resolve(import.meta.dirname, "../../..");
 
 describe("0.7 regressions", () => {
-  it("renders steering with the corrected direction", async () => {
+  it("keeps steering direction, fill and signed angle consistent", async () => {
     const source = await readFile(path.join(root, "modules/inputs/module.js"), "utf8");
-    expect(source).toContain("displayRadians = -steeringRadians");
+    const harness = createInputsHarness(source);
+    const settings = { ...harness.definition.defaults, showGraphs: false };
+    harness.definition.applySettings(settings);
+
+    const renderAngle = (steeringWheelAngleRadians: number) => {
+      harness.definition.render(
+        {
+          vehicle: {
+            throttle: 0,
+            brake: 0,
+            clutch: 0,
+            handbrake: 0,
+            steeringWheelAngleRadians,
+            steeringWheelAngleMaxRadians: 1,
+          },
+          driverAids: {},
+          motion: { dataAvailable: false },
+        },
+        { settings, hasFrame: true, editMode: false, preview: false },
+      );
+    };
+
+    renderAngle(0.5);
+    expect(harness.elements.get("steer-marker")?.style.left).toBe("75%");
+    expect(harness.elements.get("steer-fill")?.style.left).toBe("50%");
+    expect(harness.elements.get("steer-fill")?.style.width).toBe("25%");
+    expect(harness.elements.get("steer-angle")?.textContent).toBe("+29°");
+
+    renderAngle(-0.5);
+    expect(harness.elements.get("steer-marker")?.style.left).toBe("25%");
+    expect(harness.elements.get("steer-fill")?.style.left).toBe("25%");
+    expect(harness.elements.get("steer-fill")?.style.width).toBe("25%");
+    expect(harness.elements.get("steer-angle")?.textContent).toBe("-29°");
   });
 
   it("saves before leaving edit mode and keeps the active session latched", async () => {

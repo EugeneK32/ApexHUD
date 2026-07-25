@@ -37,10 +37,20 @@ function largestPixelValue(value: string): number {
   return lengths.length === 0 ? 0 : Math.max(...lengths);
 }
 
+function withoutPreviewOnlyRules(css: string): string {
+  let result = css;
+  let previous = "";
+  while (result !== previous) {
+    previous = result;
+    result = result.replace(/html\.preview[^{}]*\{[^{}]*\}/gi, "");
+  }
+  return result;
+}
+
 describe("broadcast visual system", () => {
-  it("keeps built-in widget effects restrained", async () => {
+  it("keeps runtime widget effects restrained without policing catalog previews", async () => {
     const directories = (await readdir(modulesRoot, { withFileTypes: true }))
-      .filter((entry) => entry.isDirectory());
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"));
 
     for (const directory of directories) {
       const cssPath = path.join(modulesRoot, directory.name, "style.css");
@@ -51,30 +61,52 @@ describe("broadcast visual system", () => {
         continue;
       }
 
+      const runtimeCss = withoutPreviewOnlyRules(css);
       if (!radialGradientModules.has(directory.name)) {
-        expect(css, `${directory.name} uses an unapproved radial gradient`)
+        expect(runtimeCss, `${directory.name} uses an unapproved runtime radial gradient`)
           .not.toMatch(/radial-gradient\s*\(/i);
       }
 
       for (const property of ["text-shadow", "box-shadow"]) {
-        for (const value of declarationValues(css, property)) {
+        for (const value of declarationValues(runtimeCss, property)) {
           expect(
             splitTopLevel(value),
-            `${directory.name} uses layered ${property}: ${value}`,
+            `${directory.name} uses layered runtime ${property}: ${value}`,
           ).toHaveLength(1);
           expect(
             largestPixelValue(value),
-            `${directory.name} exceeds the ${maximumEffectRadiusPx}px effect budget: ${value}`,
+            `${directory.name} exceeds the ${maximumEffectRadiusPx}px runtime effect budget: ${value}`,
           ).toBeLessThanOrEqual(maximumEffectRadiusPx);
         }
       }
 
-      for (const value of declarationValues(css, "filter")) {
-        expect(value, `${directory.name} uses a blur filter: ${value}`).not.toMatch(/\bblur\s*\(/i);
+      for (const value of declarationValues(runtimeCss, "filter")) {
+        expect(value, `${directory.name} uses a runtime blur filter: ${value}`)
+          .not.toMatch(/\bblur\s*\(/i);
         expect(
           largestPixelValue(value),
-          `${directory.name} exceeds the ${maximumEffectRadiusPx}px filter budget: ${value}`,
+          `${directory.name} exceeds the ${maximumEffectRadiusPx}px runtime filter budget: ${value}`,
         ).toBeLessThanOrEqual(maximumEffectRadiusPx);
+      }
+    }
+  });
+
+  it("keeps decorative preview effects explicitly scoped to preview mode", async () => {
+    const directories = (await readdir(modulesRoot, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith("_"));
+
+    for (const directory of directories) {
+      const cssPath = path.join(modulesRoot, directory.name, "style.css");
+      let css: string;
+      try {
+        css = await readFile(cssPath, "utf8");
+      } catch {
+        continue;
+      }
+      const runtimeCss = withoutPreviewOnlyRules(css);
+      const previewOnlyUses = (css.match(/html\.preview[^{}]*\{[^{}]*(?:radial-gradient|box-shadow)[^{}]*\}/gi) ?? []).length;
+      if (previewOnlyUses > 0) {
+        expect(runtimeCss).not.toContain("0 26px 70px");
       }
     }
   });

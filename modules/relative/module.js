@@ -30,7 +30,7 @@
     showFieldPosition: true,
     showLapFooter: true,
     showSessionFooter: true,
-    hideWhenEmpty: false,
+    autoHideWhenEmpty: false,
     backgroundColor: "#000000",
     backgroundOpacity: 0.92,
     headerColor: "#000000",
@@ -85,6 +85,7 @@
   let visible = true;
   let unsupportedProtocol = false;
   let lastSequence = -1;
+  let hasTelemetryFrame = false;
   let renderTimer = 0;
   let lastRenderAt = 0;
 
@@ -120,6 +121,7 @@
         if (!visible || Number(message.sequence) === lastSequence) return;
         lastSequence = Number(message.sequence);
         latestPayload = isRecord(message.payload) ? message.payload : {};
+        hasTelemetryFrame = true;
         queueRender(false);
         break;
     }
@@ -148,6 +150,12 @@
     if (source.footerStyle !== undefined && source.footerMode === undefined) {
       source.footerMode = source.footerStyle;
     }
+
+    // Relative 3.x persisted hideWhenEmpty=true by default. Reusing that key
+    // would make upgraded instances vanish as soon as apex:init arrives, before
+    // live relative data is available. The new opt-in key deliberately ignores
+    // the legacy value.
+    delete source.hideWhenEmpty;
 
     return { ...DEFAULTS, ...settings, ...source };
   }
@@ -214,7 +222,13 @@
     updateFooter(model);
 
     const hasNearby = model.ahead.length > 0 || model.behind.length > 0;
-    root.hidden = !editMode && Boolean(settings.hideWhenEmpty) && !hasNearby;
+    const liveSource = String(latestPayload.source || "") === "iracing";
+    const shouldAutoHide = !editMode
+      && hasTelemetryFrame
+      && liveSource
+      && Boolean(settings.autoHideWhenEmpty)
+      && !hasNearby;
+    root.hidden = shouldAutoHide;
     if (root.hidden) return;
 
     protocolState.hidden = true;

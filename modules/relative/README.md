@@ -3,7 +3,7 @@
 A compact relative timing panel for ApexHUD, rebuilt from scratch around the visual hierarchy of modern sim-racing overlays.
 
 - **Author:** Eugene Konovalov
-- **Version:** 6.0.1
+- **Version:** 6.0.2
 - **Requires:** ApexHUD telemetry protocol v6
 - **Scopes:** `session`, `player`, `environment`, `relative`, `standings`
 
@@ -28,3 +28,7 @@ Copy the `relative` directory into the ApexHUD modules directory, reload the mod
 ## 6.0.1 layout correction
 
 Rows now use fixed compact density instead of dividing all available height by the number of visible cars. Class-only filtering and short relative lists therefore remain table-sized and badges no longer overlap.
+
+## 6.0.2 runtime visibility fix
+
+Legacy `hideWhenEmpty=true` values from Relative 3.x are intentionally ignored. Auto-hide is now a new opt-in setting and only activates after a real iRacing telemetry frame, preventing the widget from flashing for a moment and disappearing after `apex:init`.

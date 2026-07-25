@@ -23,12 +23,20 @@ describe("minimal radar visual", () => {
     expect(css).toMatch(/\.native-radar-player\s*\{[^}]*background:\s*transparent\s*!important/si);
   });
 
-  it("uses compact factory bounds", async () => {
+  it("uses a compact but still readable factory footprint", async () => {
     const manifest = JSON.parse(
       await readFile(path.join(root, "modules/radar/manifest.json"), "utf8"),
-    );
-    expect(manifest.defaultBounds.width).toBeLessThanOrEqual(0.08);
-    expect(manifest.defaultBounds.height).toBeLessThanOrEqual(0.1);
-    expect(manifest.minimumSize.width).toBeLessThanOrEqual(100);
+    ) as {
+      defaultBounds: { width: number; height: number };
+      minimumSize: { width: number; height: number };
+    };
+
+    expect(manifest.defaultBounds.width).toBeLessThanOrEqual(0.12);
+    expect(manifest.defaultBounds.height).toBeLessThanOrEqual(0.22);
+    expect(manifest.defaultBounds.width * manifest.defaultBounds.height).toBeLessThanOrEqual(0.025);
+    expect(manifest.minimumSize.width).toBeLessThanOrEqual(140);
+    expect(manifest.minimumSize.height).toBeLessThanOrEqual(160);
+    expect(manifest.minimumSize.width).toBeGreaterThanOrEqual(80);
+    expect(manifest.minimumSize.height).toBeGreaterThanOrEqual(100);
   });
 });

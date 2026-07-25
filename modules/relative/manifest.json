@@ -3,7 +3,7 @@
   "id": "com.apexhud.relative",
   "name": "Race Relative",
   "description": "A compact RaceLab-style relative panel for ApexHUD protocol v6 with fixed-density rows, standings enrichment and editor demo data.",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
@@ -317,10 +317,11 @@
       "default": true
     },
     {
-      "key": "hideWhenEmpty",
-      "label": "05 · Behaviour — Hide without nearby cars",
+      "key": "autoHideWhenEmpty",
+      "label": "05 · Behaviour — Auto-hide without nearby cars",
       "type": "boolean",
-      "default": false
+      "default": false,
+      "help": "Opt-in. Legacy hideWhenEmpty settings from Relative 3.x are ignored so upgraded layouts do not disappear unexpectedly."
     },
     {
       "key": "backgroundColor",

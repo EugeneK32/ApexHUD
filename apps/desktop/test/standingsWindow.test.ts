@@ -1,7 +1,49 @@
-import { describe, expect, it } from "vitest";
-import { identifyPlayerEntries, selectGroupedStandings, selectVisibleStandings } from "../../../modules/standings/windowing.js";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { runInNewContext } from "node:vm";
+import { beforeAll, describe, expect, it } from "vitest";
 
-function field(size: number, playerPosition: number) {
+const root = path.resolve(import.meta.dirname, "../../..");
+
+type Entry = {
+  carIndex: number;
+  position: number;
+  classPosition?: number;
+  carClassId?: number;
+  carClassName?: string;
+  isPlayer?: boolean;
+};
+
+type WindowingApi = {
+  identifyPlayerEntries: (entries: Entry[], player?: Record<string, unknown>) => Entry[];
+  selectGroupedStandings: (
+    entries: Entry[],
+    rows: number,
+    playerCarIndex?: number,
+    focusMode?: string,
+  ) => Array<{ entries: Entry[]; totalCount: number }>;
+  selectVisibleStandings: (
+    entries: Entry[],
+    rows: number,
+    playerCarIndex?: number,
+    positionKey?: string,
+    focusMode?: string,
+  ) => Entry[];
+};
+
+let api: WindowingApi;
+
+beforeAll(async () => {
+  const source = await readFile(path.join(root, "modules/standings/windowing.js"), "utf8");
+  const browserWindow: { StandingsWindowing?: WindowingApi } = {};
+  runInNewContext(source, { window: browserWindow });
+  if (!browserWindow.StandingsWindowing) {
+    throw new Error("standings windowing helper did not expose its classic-script API");
+  }
+  api = browserWindow.StandingsWindowing;
+});
+
+function field(size: number, playerPosition: number): Entry[] {
   return Array.from({ length: size }, (_, index) => ({
     carIndex: index,
     position: index + 1,
@@ -9,54 +51,57 @@ function field(size: number, playerPosition: number) {
   }));
 }
 
+function positions(entries: Entry[]): number[] {
+  return Array.from(entries, (entry) => entry.position);
+}
+
 describe("standings visible window", () => {
   it("keeps the normal top rows when the player is already visible", () => {
-    const visible = selectVisibleStandings(field(30, 8), 12);
-    expect(visible.map((entry) => entry.position)).toEqual(
+    expect(positions(api.selectVisibleStandings(field(30, 8), 12))).toEqual(
       Array.from({ length: 12 }, (_, index) => index + 1),
     );
   });
 
-  it("pins the player and the next car after the leaders", () => {
-    const visible = selectVisibleStandings(field(30, 20), 12);
-    expect(visible.map((entry) => entry.position)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21,
+  it("keeps leaders plus a three-car battle context around a distant player", () => {
+    expect(positions(api.selectVisibleStandings(field(30, 20), 12))).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 19, 20, 21,
     ]);
   });
 
-  it("pins the preceding car when the player is last", () => {
-    const visible = selectVisibleStandings(field(20, 20), 12);
-    expect(visible.map((entry) => entry.position)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 20,
+  it("keeps the final three cars when the player is last", () => {
+    expect(positions(api.selectVisibleStandings(field(20, 20), 12))).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20,
     ]);
   });
 
+  it("supports leader-only and player-centered focus modes", () => {
+    expect(positions(api.selectVisibleStandings(field(30, 20), 12, -1, "position", "leaders")))
+      .toEqual(Array.from({ length: 12 }, (_, index) => index + 1));
+    expect(positions(api.selectVisibleStandings(field(30, 20), 12, -1, "position", "player")))
+      .toEqual(Array.from({ length: 12 }, (_, index) => index + 15));
+  });
 
   it("pins the player by car index when the backend flag is missing", () => {
-    const entries = field(30, -1);
-    const visible = selectVisibleStandings(entries, 12, 19);
-    expect(visible.map((entry) => entry.position)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21,
+    expect(positions(api.selectVisibleStandings(field(30, -1), 12, 19))).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 19, 20, 21,
     ]);
   });
 
   it("restores the player marker from the player snapshot", () => {
-    const entries = field(20, -1);
-    const identified = identifyPlayerEntries(entries, { carIndex: 11 });
-    expect(identified.filter((entry) => entry.isPlayer).map((entry) => entry.position)).toEqual([12]);
+    const identified = api.identifyPlayerEntries(field(20, -1), { carIndex: 11 });
+    expect(Array.from(identified).filter((entry) => entry.isPlayer).map((entry) => entry.position))
+      .toEqual([12]);
   });
 
-
   it("prefers the live player car index over a stale backend marker", () => {
-    const entries = field(30, 4);
-    const identified = identifyPlayerEntries(entries, { carIndex: 19 });
-    expect(identified.filter((entry) => entry.isPlayer).map((entry) => entry.position)).toEqual([20]);
-    expect(selectVisibleStandings(identified, 12, 19).map((entry) => entry.position)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21,
+    const identified = api.identifyPlayerEntries(field(30, 4), { carIndex: 19 });
+    expect(Array.from(identified).filter((entry) => entry.isPlayer).map((entry) => entry.position))
+      .toEqual([20]);
+    expect(positions(api.selectVisibleStandings(identified, 12, 19))).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 19, 20, 21,
     ]);
   });
 });
-
 
 describe("multiclass standings", () => {
   it("splits rows by class and keeps the player in the player class", () => {
@@ -69,9 +114,11 @@ describe("multiclass standings", () => {
       isPlayer: index === 17,
     }));
 
-    const groups = selectGroupedStandings(entries, 12, 17);
+    const groups = api.selectGroupedStandings(entries, 12, 17);
     expect(groups).toHaveLength(2);
-    expect(groups.flatMap((group) => group.entries).some((entry) => entry.carIndex === 17)).toBe(true);
-    expect(groups.every((group) => group.entries.length > 0)).toBe(true);
+    expect(groups.reduce((sum, group) => sum + group.entries.length, 0)).toBeLessThanOrEqual(12);
+    expect(groups.flatMap((group) => Array.from(group.entries)).some((entry) => entry.carIndex === 17))
+      .toBe(true);
+    expect(groups.every((group) => group.entries.length > 0 && group.totalCount === 10)).toBe(true);
   });
 });
