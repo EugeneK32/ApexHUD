@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.race-control",
+  "name": "Race Control",
+  "description": "High-visibility flag, caution, penalty and pit-road instruction panel.",
+  "version": "2.0.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "session",
+    "player"
+  ],
+  "defaultBounds": {
+    "x": 0.405,
+    "y": 0.16,
+    "width": 0.19,
+    "height": 0.13
+  },
+  "minimumSize": {
+    "width": 280,
+    "height": 110
+  },
+  "settings": [
+    {
+      "key": "hideWhenClear",
+      "label": "Hide when track is clear",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showIncidents",
+      "label": "Show incident count",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

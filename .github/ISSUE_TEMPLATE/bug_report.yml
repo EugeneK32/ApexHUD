@@ -1,0 +1,33 @@
+name: Bug report / Ошибка
+description: Report reproducible ApexHUD behavior / Сообщить о воспроизводимой ошибке
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened? / Что произошло?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps / Шаги воспроизведения
+      placeholder: "1. ...\n2. ..."
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ApexHUD version / Версия
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / Окружение
+      description: Windows, display scaling, session type, live/mock, relevant module.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots / Логи и скриншоты

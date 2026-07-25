@@ -1,0 +1,92 @@
+{
+  "name": "@apexhud/desktop",
+  "version": "0.11.0",
+  "private": true,
+  "type": "module",
+  "main": "dist-main/main/index.js",
+  "description": "ApexHUD Electron overlay host",
+  "author": "ApexHUD contributors",
+  "license": "MPL-2.0",
+  "scripts": {
+    "dev": "concurrently -k -n renderer,main,electron -c auto \"vite --host 127.0.0.1\" \"tsc -p tsconfig.main.json --watch --preserveWatchOutput\" \"wait-on tcp:5173 file:dist-main/main/index.js file:dist-main/preload/index.cjs && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
+    "build": "npm run clean && vite build && tsc -p tsconfig.main.json",
+    "clean": "node -e \"const fs=require('fs'); for (const p of ['dist-main','dist-renderer','release']) fs.rmSync(p,{recursive:true,force:true});\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.main.json --noEmit",
+    "test": "vitest run && npm run verify:manifests",
+    "package:win": "npm run build && electron-builder --win nsis portable",
+    "predev": "npm --workspace @apexhud/protocol run build",
+    "prebuild": "npm --workspace @apexhud/protocol run build",
+    "pretypecheck": "npm --workspace @apexhud/protocol run build",
+    "pretest": "npm --workspace @apexhud/protocol run build",
+    "verify:manifests": "node ../../scripts/verify-manifests.mjs"
+  },
+  "dependencies": {
+    "@apexhud/protocol": "0.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "concurrently": "10.0.3",
+    "cross-env": "10.1.0",
+    "electron": "43.1.1",
+    "electron-builder": "26.15.3",
+    "typescript": "7.0.2",
+    "vite": "8.1.5",
+    "vitest": "4.1.10",
+    "wait-on": "9.0.10"
+  },
+  "build": {
+    "appId": "com.apexhud.desktop",
+    "productName": "ApexHUD",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-main/**/*",
+      "dist-renderer/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../../modules",
+        "to": "modules",
+        "filter": [
+          "**/*",
+          "!_template/**/*"
+        ]
+      },
+      {
+        "from": "../../config",
+        "to": "config"
+      },
+      {
+        "from": "../../services/telemetry/publish",
+        "to": "telemetry"
+      },
+      {
+        "from": "../../bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "icon": "assets/app-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "assets/app-icon.ico",
+      "uninstallerIcon": "assets/app-icon.ico"
+    }
+  }
+}

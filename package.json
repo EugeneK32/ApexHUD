@@ -1,0 +1,24 @@
+{
+  "name": "apexhud",
+  "private": true,
+  "version": "0.11.0",
+  "description": "Customizable iRacing overlay platform",
+  "workspaces": [
+    "apps/desktop",
+    "packages/protocol"
+  ],
+  "scripts": {
+    "dev": "npm --workspace @apexhud/protocol run build && npm --workspace @apexhud/desktop run dev",
+    "build": "npm --workspace @apexhud/protocol run build && npm --workspace @apexhud/desktop run build",
+    "test": "npm --workspace @apexhud/protocol run build && npm --workspace @apexhud/desktop run test",
+    "typecheck": "npm --workspace @apexhud/protocol run typecheck && npm --workspace @apexhud/desktop run typecheck",
+    "package:win": "npm --workspace @apexhud/desktop run package:win",
+    "verify": "npm run typecheck && npm run test && npm run build",
+    "preview:modules": "vite --host 127.0.0.1 --open /tools/preview.html"
+  },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "license": "MPL-2.0"
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.session",
+  "name": "Session Header",
+  "description": "Premium session status with remaining time, lap limit, track name and live flag state.",
+  "version": "3.0.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "connection",
+    "session"
+  ],
+  "defaultBounds": {
+    "x": 0.76,
+    "y": 0.035,
+    "width": 0.22,
+    "height": 0.105
+  },
+  "minimumSize": {
+    "width": 310,
+    "height": 90
+  },
+  "settings": [
+    {
+      "key": "showTrack",
+      "label": "Show track name",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "accent",
+      "label": "Idle flag color",
+      "type": "color",
+      "default": "#d64b7f"
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.3,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

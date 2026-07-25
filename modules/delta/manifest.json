@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.delta",
+  "name": "Personal Delta",
+  "description": "Live delta to your best clean lap with validity, reference times and a compact gain/loss meter.",
+  "version": "3.0.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "timing"
+  ],
+  "defaultBounds": {
+    "x": 0.405,
+    "y": 0.035,
+    "width": 0.19,
+    "height": 0.105
+  },
+  "minimumSize": {
+    "width": 250,
+    "height": 95
+  },
+  "settings": [
+    {
+      "key": "showTimes",
+      "label": "Show lap times",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "decimals",
+      "label": "Delta decimals",
+      "type": "range",
+      "default": 3,
+      "min": 2,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "key": "gainColor",
+      "label": "Ahead color",
+      "type": "color",
+      "default": "#36c96b"
+    },
+    {
+      "key": "lossColor",
+      "label": "Behind color",
+      "type": "color",
+      "default": "#ef4444"
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.3,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

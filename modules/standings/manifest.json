@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "com.apexhud.standings",
+  "name": "Race Standings",
+  "description": "Polished race leaderboard with strong typography, compact multiclass grouping, guaranteed player visibility and automatic Strength of Field summaries.",
+  "version": "3.3.0",
+  "author": "ApexHUD",
+  "entry": "index.html",
+  "scopes": [
+    "connection",
+    "session",
+    "player",
+    "standings"
+  ],
+  "defaultBounds": {
+    "x": 0.018,
+    "y": 0.12,
+    "width": 0.27,
+    "height": 0.58
+  },
+  "minimumSize": {
+    "width": 400,
+    "height": 310
+  },
+  "settings": [
+    {
+      "key": "rows",
+      "label": "Maximum visible drivers",
+      "type": "range",
+      "default": 12,
+      "min": 7,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "key": "mode",
+      "label": "Cars to show",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "label": "Automatic (recommended)",
+          "value": "auto"
+        },
+        {
+          "label": "All cars together",
+          "value": "overall"
+        },
+        {
+          "label": "My class only",
+          "value": "class"
+        },
+        {
+          "label": "Separate section for each class",
+          "value": "grouped"
+        }
+      ],
+      "help": "Automatic uses one list in single-class races and separates classes in multiclass races."
+    },
+    {
+      "key": "showIRating",
+      "label": "Show iRating",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showLicense",
+      "label": "Show licence",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showLastLap",
+      "label": "Show last lap",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "compact",
+      "label": "Compact rows",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "accent",
+      "label": "Player highlight",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "opacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.4,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

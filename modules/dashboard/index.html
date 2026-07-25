@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <main id="dash">
+      <i class="accent-rail"></i>
+      <section class="speed">
+        <span class="label">SPEED</span>
+        <div><strong id="speed">0</strong><small id="speed-unit">KM/H</small></div>
+      </section>
+      <section class="gear">
+        <span class="label">GEAR</span>
+        <strong id="gear">N</strong>
+      </section>
+      <section class="rpm">
+        <div class="rpm-head"><span id="rpm-state">RPM</span><b id="rpm">0</b></div>
+        <div class="bar"><i id="rpm-bar"></i><em></em></div>
+        <div class="scale"><span id="low-label">LOW</span><span id="shift-label">SHIFT</span></div>
+      </section>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>

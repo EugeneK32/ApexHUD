@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Driver Inputs</title>
+  </head>
+  <body>
+    <main id="inputs">
+      <i class="accent-rail"></i>
+      <header><b>DRIVER INPUTS</b><span id="steering-value">0°</span></header>
+      <section class="live-inputs">
+        <div class="steering">
+          <span>STEERING</span>
+          <div class="steering-gauge"><i id="steering-marker"></i><b></b></div>
+        </div>
+        <div class="pedals">
+          <div class="pedal throttle"><span>THR</span><div class="pedal-track"><i id="thr-bar"></i></div><b><em id="thr-value">0</em>%</b></div>
+          <div class="pedal brake"><span>BRK</span><div class="pedal-track"><i id="brk-bar"></i></div><b><em id="brk-value">0</em>%</b></div>
+          <div class="pedal clutch"><span>CLT</span><div class="pedal-track"><i id="clt-bar"></i></div><b><em id="clt-value">0</em>%</b></div>
+        </div>
+      </section>
+      <section class="chart">
+        <svg id="pedals" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Pedal input history">
+          <path class="grid" d="M0 50H100 M25 0V100 M50 0V100 M75 0V100" />
+          <polyline id="throttle-line" class="trace throttle-trace" points="" />
+          <polyline id="brake-line" class="trace brake-trace" points="" />
+          <polyline id="clutch-line" class="trace clutch-trace" points="" />
+        </svg>
+      </section>
+    </main>
+    <script src="module.js"></script>
+  </body>
+</html>
