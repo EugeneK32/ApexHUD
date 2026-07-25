@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { TelemetrySnapshot } from "@apexhud/protocol";
+import { PROTOCOL_VERSION, type TelemetrySnapshot } from "@apexhud/protocol";
 import { isRaceOverlayActive } from "../src/renderer/overlay/sessionVisibility";
 
 function frame(
@@ -8,7 +8,7 @@ function frame(
   window: Partial<TelemetrySnapshot["connection"]["simulatorWindow"]> = {},
 ): TelemetrySnapshot {
   return {
-    protocolVersion: 3,
+    protocolVersion: PROTOCOL_VERSION,
     sequence: 1,
     timestamp: new Date(0).toISOString(),
     source,
@@ -33,7 +33,8 @@ function frame(
       sessionName: "Practice",
       eventType: "Practice",
       trackName: "Test",
-      trackLengthMeters: 1000,
+      trackLengthMeters: 1_000,
+      sessionTimeSeconds: 10,
       timeRemainingSeconds: 100,
       hasTimeLimit: true,
       lapsRemaining: 1,
@@ -46,6 +47,11 @@ function frame(
       carIndex: 0,
       name: "Player",
       carNumber: "1",
+      teamName: "ApexHUD",
+      carClassId: 10,
+      carClassName: "GT3",
+      iRating: 2_500,
+      license: "A 3.50",
       position: 1,
       classPosition: 1,
       lap: 1,
@@ -61,15 +67,36 @@ function frame(
     vehicle: {
       speedMetersPerSecond: 10,
       gear: 2,
-      rpm: 4000,
-      shiftRpm: 7000,
+      rpm: 4_000,
+      shiftRpm: 7_000,
       throttle: 0.5,
       brake: 0,
       clutch: 0,
       steeringWheelAngleRadians: 0,
       onPitRoad: false,
       trackSurface: 3,
+      trackSurfaceMaterial: 0,
     },
+    driverAids: {
+      absAvailable: false,
+      absActive: false,
+      tractionControlAvailable: false,
+      tractionControlEnabled: false,
+      brakeBiasAvailable: false,
+      pitLimiterAvailable: false,
+      pitLimiterActive: false,
+      revLimiterActive: false,
+      engineWarningsAvailable: false,
+      engineWarnings: 0,
+      waterTemperatureWarning: false,
+      fuelPressureWarning: false,
+      oilPressureWarning: false,
+      oilTemperatureWarning: false,
+      engineStalled: false,
+    },
+    pit: { dataAvailable: false, inPitStall: false, pitstopActive: false },
+    environment: { dataAvailable: false },
+    motion: { dataAvailable: false },
     timing: {
       currentLap: 1,
       completedLaps: 0,
@@ -78,6 +105,14 @@ function frame(
       bestLapSeconds: 0,
       deltaToBestSeconds: 0,
       deltaAvailable: false,
+      deltaToOptimalLapSeconds: 0,
+      deltaToOptimalLapAvailable: false,
+      deltaToSessionBestLapSeconds: 0,
+      deltaToSessionBestLapAvailable: false,
+      deltaToSessionOptimalLapSeconds: 0,
+      deltaToSessionOptimalLapAvailable: false,
+      deltaToLastLapSeconds: 0,
+      deltaToLastLapAvailable: false,
       currentLapValid: false,
       validity: "unavailable",
     },
@@ -105,9 +140,7 @@ describe("race overlay visibility", () => {
   });
 
   it("hides when iRacing is minimized", () => {
-    expect(
-      isRaceOverlayActive(frame("iracing", true, { isMinimized: true })),
-    ).toBe(false);
+    expect(isRaceOverlayActive(frame("iracing", true, { isMinimized: true }))).toBe(false);
   });
 
   it("supports foreground, minimized-only and never auto-hide modes", () => {

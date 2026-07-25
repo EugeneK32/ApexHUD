@@ -2,74 +2,187 @@
   "schemaVersion": 1,
   "id": "com.apexhud.inputs",
   "name": "Driver Inputs",
-  "description": "Live steering and pedal bars combined with compact scrolling input traces.",
-  "version": "4.0.0",
-  "author": "ApexHUD",
+  "description": "Processed and raw pedals, steering, torque, ABS, TC and brake-bias telemetry.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
-    "vehicle"
+    "vehicle",
+    "driverAids",
+    "motion"
   ],
   "defaultBounds": {
-    "x": 0.16,
-    "y": 0.79,
-    "width": 0.19,
-    "height": 0.17
+    "x": 0.02,
+    "y": 0.48,
+    "width": 0.2,
+    "height": 0.19
   },
   "minimumSize": {
-    "width": 260,
-    "height": 140
+    "width": 250,
+    "height": 150
   },
   "settings": [
     {
-      "key": "throttleColor",
-      "label": "Throttle line",
-      "type": "color",
-      "default": "#42d36f"
-    },
-    {
-      "key": "brakeColor",
-      "label": "Brake line",
-      "type": "color",
-      "default": "#ff5252"
-    },
-    {
-      "key": "clutchColor",
-      "label": "Clutch line",
-      "type": "color",
-      "default": "#d8dde5"
+      "key": "pedalData",
+      "label": "Pedal data",
+      "type": "select",
+      "default": "both",
+      "options": [
+        {
+          "label": "Processed + raw marker",
+          "value": "both"
+        },
+        {
+          "label": "Processed only",
+          "value": "processed"
+        },
+        {
+          "label": "Raw only",
+          "value": "raw"
+        }
+      ]
     },
     {
       "key": "showClutch",
-      "label": "Show clutch trace",
+      "label": "Show clutch",
       "type": "boolean",
       "default": true
     },
     {
-      "key": "historySeconds",
-      "label": "Visible history",
+      "key": "showHandbrake",
+      "label": "Show handbrake",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showSteering",
+      "label": "Show steering",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showTorque",
+      "label": "Show steering torque",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showDriverAids",
+      "label": "Show ABS, TC and brake bias",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showGraphs",
+      "label": "Show input history graph",
+      "type": "boolean",
+      "default": true,
+      "help": "Shows scrolling throttle, brake and clutch traces."
+    },
+    {
+      "key": "graphSeconds",
+      "label": "Graph history",
       "type": "range",
       "default": 4,
       "min": 1,
       "max": 10,
-      "step": 1,
-      "help": "Approximate seconds of input history shown on the graph."
+      "step": 0.5,
+      "help": "Approximate number of seconds visible in the history graph."
     },
     {
-      "key": "lineWidth",
-      "label": "Line width",
+      "key": "graphLineWidth",
+      "label": "Graph line width",
       "type": "range",
-      "default": 1.8,
+      "default": 1.5,
       "min": 1,
       "max": 4,
-      "step": 0.2
+      "step": 0.25
     },
     {
-      "key": "opacity",
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
       "label": "Panel opacity",
       "type": "range",
-      "default": 0.9,
+      "default": 0.94,
       "min": 0.2,
       "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "throttleColor",
+      "label": "Throttle color",
+      "type": "color",
+      "default": "#37d67a"
+    },
+    {
+      "key": "brakeColor",
+      "label": "Brake color",
+      "type": "color",
+      "default": "#ff4d5e"
+    },
+    {
+      "key": "clutchColor",
+      "label": "Clutch color",
+      "type": "color",
+      "default": "#3f8cf4"
+    },
+    {
+      "key": "handbrakeColor",
+      "label": "Handbrake color",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "steeringColor",
+      "label": "Steering color",
+      "type": "color",
+      "default": "#27c3e8"
+    },
+    {
+      "key": "textColor",
+      "label": "Primary text color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
+      "type": "range",
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

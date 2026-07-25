@@ -2,47 +2,161 @@
   "schemaVersion": 1,
   "id": "com.apexhud.fuel",
   "name": "Fuel Strategy",
-  "description": "Premium fuel strategy display with remaining fuel, learned consumption, estimated laps and refill target.",
-  "version": "3.0.0",
-  "author": "ApexHUD",
+  "description": "Fuel level, consumption, laps remaining and finish strategy with configurable reserve.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
-    "fuel"
+    "fuel",
+    "session"
   ],
   "defaultBounds": {
-    "x": 0.78,
-    "y": 0.79,
-    "width": 0.2,
+    "x": 0.02,
+    "y": 0.72,
+    "width": 0.18,
     "height": 0.15
   },
   "minimumSize": {
-    "width": 270,
-    "height": 130
+    "width": 220,
+    "height": 110
   },
   "settings": [
     {
-      "key": "safetyMargin",
-      "label": "Visual safety margin",
-      "type": "range",
-      "default": 0.2,
-      "min": 0,
-      "max": 2,
-      "step": 0.1,
-      "help": "Added to the displayed refill estimate."
+      "key": "unit",
+      "label": "Fuel unit",
+      "type": "select",
+      "default": "liters",
+      "options": [
+        {
+          "label": "Litres",
+          "value": "liters"
+        },
+        {
+          "label": "US gallons",
+          "value": "gallons"
+        }
+      ]
     },
     {
-      "key": "accent",
-      "label": "Accent",
+      "key": "layout",
+      "label": "Information density",
+      "type": "select",
+      "default": "strategy",
+      "options": [
+        {
+          "label": "Strategy details",
+          "value": "strategy"
+        },
+        {
+          "label": "Compact",
+          "value": "compact"
+        }
+      ]
+    },
+    {
+      "key": "reserveLaps",
+      "label": "Reserve laps",
+      "type": "range",
+      "default": 0.5,
+      "min": 0,
+      "max": 3,
+      "step": 0.25,
+      "help": "Adds this many laps of fuel to the finish requirement."
+    },
+    {
+      "key": "lowFuelLaps",
+      "label": "Low-fuel warning at laps",
+      "type": "range",
+      "default": 3,
+      "min": 0.5,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "key": "showSamples",
+      "label": "Show learning sample count",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.94,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "safeColor",
+      "label": "Safe strategy color",
+      "type": "color",
+      "default": "#37d67a"
+    },
+    {
+      "key": "warningColor",
+      "label": "Low fuel color",
       "type": "color",
       "default": "#f2c94c"
     },
     {
-      "key": "opacity",
-      "label": "Panel opacity",
+      "key": "dangerColor",
+      "label": "Fuel deficit color",
+      "type": "color",
+      "default": "#ff4d5e"
+    },
+    {
+      "key": "accentColor",
+      "label": "Fuel level accent",
+      "type": "color",
+      "default": "#27c3e8"
+    },
+    {
+      "key": "textColor",
+      "label": "Primary text color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
       "type": "range",
-      "default": 0.92,
-      "min": 0.3,
-      "max": 1,
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

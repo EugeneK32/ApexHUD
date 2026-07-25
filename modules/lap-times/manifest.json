@@ -1,41 +1,169 @@
 {
   "schemaVersion": 1,
   "id": "com.apexhud.lap-times",
-  "name": "Lap Times",
-  "description": "Current, last and best laps with clean-lap validity and live delta status.",
-  "version": "2.0.0",
-  "author": "ApexHUD",
+  "name": "Lap Timing",
+  "description": "Current, last and best lap timing with validity and configurable primary value.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
     "timing"
   ],
   "defaultBounds": {
-    "x": 0.61,
-    "y": 0.79,
-    "width": 0.16,
-    "height": 0.16
+    "x": 0.02,
+    "y": 0.27,
+    "width": 0.19,
+    "height": 0.15
   },
   "minimumSize": {
-    "width": 280,
-    "height": 130
+    "width": 220,
+    "height": 110
   },
   "settings": [
     {
-      "key": "decimals",
-      "label": "Delta decimals",
+      "key": "primary",
+      "label": "Primary lap time",
+      "type": "select",
+      "default": "current",
+      "options": [
+        {
+          "label": "Current lap",
+          "value": "current"
+        },
+        {
+          "label": "Last lap",
+          "value": "last"
+        },
+        {
+          "label": "Best lap",
+          "value": "best"
+        }
+      ]
+    },
+    {
+      "key": "showCurrent",
+      "label": "Show current lap",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showLast",
+      "label": "Show last lap",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showBest",
+      "label": "Show best lap",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showLapCount",
+      "label": "Show lap count",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showDelta",
+      "label": "Show delta to best",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "timeDecimals",
+      "label": "Time decimals",
       "type": "range",
       "default": 3,
       "min": 1,
-      "max": 4,
+      "max": 3,
       "step": 1
     },
     {
-      "key": "opacity",
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
       "label": "Panel opacity",
       "type": "range",
-      "default": 0.92,
+      "default": 0.94,
       "min": 0.2,
       "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "accentColor",
+      "label": "Current lap accent",
+      "type": "color",
+      "default": "#27c3e8"
+    },
+    {
+      "key": "bestColor",
+      "label": "Best lap color",
+      "type": "color",
+      "default": "#b05cff"
+    },
+    {
+      "key": "gainColor",
+      "label": "Faster delta color",
+      "type": "color",
+      "default": "#37d67a"
+    },
+    {
+      "key": "lossColor",
+      "label": "Slower delta color",
+      "type": "color",
+      "default": "#ff4d5e"
+    },
+    {
+      "key": "invalidColor",
+      "label": "Invalid lap color",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "textColor",
+      "label": "Primary text color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
+      "type": "range",
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

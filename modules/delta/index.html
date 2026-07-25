@@ -1,22 +1,21 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Delta</title>
-  </head>
-  <body>
-    <main id="delta">
-      <i class="accent-rail"></i>
-      <header><span>DELTA</span><div class="status"><i class="validity" id="validity"></i><b id="validity-label">NO DATA</b></div></header>
-      <section class="delta-main">
-        <div class="copy"><span class="label">TO BEST CLEAN</span><strong id="value">--.---</strong></div>
-        <div class="meter" aria-hidden="true"><span class="loss-mark">+1.0</span><i id="meter-marker"></i><em></em><span class="gain-mark">−1.0</span></div>
-      </section>
-      <footer class="times" id="times"><span>CURRENT <b id="current">—</b></span><span>BEST <b id="best">—</b></span></footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Configurable Delta</title>
+</head>
+<body>
+<main id="delta" class="module-root delta">
+ <div data-protocol-error></div>
+ <header><span id="reference-label">SESSION BEST</span><span id="validity" class="validity">VALID</span></header>
+ <section class="delta-main"><span id="delta-value">—</span><span id="delta-unit">SEC</span></section>
+ <div id="meter" class="meter"><i class="center"></i><i id="marker" class="marker"></i></div>
+ <footer id="times"><div><span>CURRENT</span><strong id="current">—</strong></div><div><span>LAST</span><strong id="last">—</strong></div><div><span>BEST</span><strong id="best">—</strong></div></footer>
+</main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

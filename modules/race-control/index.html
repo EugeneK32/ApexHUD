@@ -1,22 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Race Control</title>
-  </head>
-  <body>
-    <main id="control">
-      <i id="lamp" class="accent-rail"></i>
-      <header><span>RACE CONTROL</span><b id="incident-chip">0x</b></header>
-      <section>
-        <div class="flag-mark"><i></i></div>
-        <div class="copy"><strong id="message">CLEAR</strong><span id="detail">GREEN</span></div>
-      </section>
-      <footer id="instruction">TRACK CLEAR</footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Race Control</title>
+</head>
+<body>
+<main id="race-control" class="module-root race-control"><div data-protocol-error></div><section class="flag"><i id="flag-pattern"></i><div><span>RACE CONTROL</span><strong id="flag-label">CLEAR</strong></div></section><section class="details"><div id="message">TRACK CLEAR</div><footer><span id="pit-state">PITS —</span><span id="repair-state">REPAIRS —</span><span id="warning-state">ENGINE OK</span></footer></section></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

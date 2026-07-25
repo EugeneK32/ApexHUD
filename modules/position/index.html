@@ -1,32 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Position</title>
-  </head>
-  <body>
-    <main id="position">
-      <i class="accent-rail"></i>
-      <header>
-        <span id="context">RACE POSITION</span>
-        <b id="car-number">#--</b>
-      </header>
-      <section class="position-body">
-        <div class="primary-position">
-          <small id="primary-label">POSITION</small>
-          <strong id="primary">—</strong>
-          <em id="class-name">WAITING FOR SESSION</em>
-        </div>
-        <div class="secondary-metrics">
-          <div><small id="secondary-label">FIELD</small><b id="secondary">—</b></div>
-          <div><small>LAP</small><b id="lap">—</b></div>
-        </div>
-      </section>
-      <footer><span id="driver">Player</span><b id="status">WAITING</b></footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Race Position</title>
+</head>
+<body>
+<main id="position" class="module-root position"><div data-protocol-error></div><section class="hero"><span id="position-prefix">P</span><strong id="primary-position">—</strong><span id="field-size">/ —</span></section><section class="context"><header><strong id="driver">WAITING FOR DRIVER</strong><span id="car-number">#—</span></header><div class="badges"><span id="secondary-position">CLASS P—</span><span id="class-name">—</span><span id="irating">— iR</span></div><footer id="gaps"><span>▲ <b id="gap-ahead">—</b></span><span>▼ <b id="gap-behind">—</b></span></footer></section></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

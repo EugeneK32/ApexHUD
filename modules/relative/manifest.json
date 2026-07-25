@@ -1,61 +1,486 @@
 {
   "schemaVersion": 1,
   "id": "com.apexhud.relative",
-  "name": "Relative",
-  "description": "Broadcast-style relative timing with a centered player row and nearest cars ahead and behind.",
-  "version": "3.1.0",
-  "author": "ApexHUD",
+  "name": "Race Relative",
+  "description": "A compact RaceLab-style relative panel for ApexHUD protocol v6 with fixed-density rows, standings enrichment and editor demo data.",
+  "version": "6.0.2",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
     "session",
-    "relative"
+    "player",
+    "environment",
+    "relative",
+    "standings"
   ],
   "defaultBounds": {
-    "x": 0.775,
+    "x": 0.018,
     "y": 0.19,
-    "width": 0.205,
-    "height": 0.43
+    "width": 0.235,
+    "height": 0.34
   },
   "minimumSize": {
-    "width": 300,
-    "height": 270
+    "width": 220,
+    "height": 150
   },
   "settings": [
     {
-      "key": "rows",
-      "label": "Visible cars",
+      "key": "carsAhead",
+      "label": "01 · Rows — Cars ahead",
       "type": "range",
-      "default": 6,
-      "min": 4,
-      "max": 12,
+      "default": 3,
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "help": "Maximum number of nearby cars above the player. The widget automatically shows fewer rows when resized smaller."
+    },
+    {
+      "key": "carsBehind",
+      "label": "01 · Rows — Cars behind",
+      "type": "range",
+      "default": 3,
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "help": "Maximum number of nearby cars below the player. The widget automatically shows fewer rows when resized smaller."
+    },
+    {
+      "key": "classFilter",
+      "label": "01 · Rows — Cars to include",
+      "type": "select",
+      "default": "all",
+      "options": [
+        {
+          "label": "All classes",
+          "value": "all"
+        },
+        {
+          "label": "My class only",
+          "value": "class"
+        }
+      ]
+    },
+    {
+      "key": "gapMode",
+      "label": "01 · Rows — Relative value",
+      "type": "select",
+      "default": "time",
+      "options": [
+        {
+          "label": "Estimated time gap",
+          "value": "time"
+        },
+        {
+          "label": "Track distance",
+          "value": "distance"
+        },
+        {
+          "label": "Automatic",
+          "value": "auto"
+        }
+      ],
+      "help": "Time is an ApexHUD spatial estimate, not an official scoring interval."
+    },
+    {
+      "key": "gapSigns",
+      "label": "01 · Rows — Gap signs",
+      "type": "select",
+      "default": "none",
+      "options": [
+        {
+          "label": "No signs (RaceLab style)",
+          "value": "none"
+        },
+        {
+          "label": "Ahead − / behind +",
+          "value": "signed"
+        },
+        {
+          "label": "Behind + only",
+          "value": "behind"
+        }
+      ]
+    },
+    {
+      "key": "nameFormat",
+      "label": "02 · Layout — Driver names",
+      "type": "select",
+      "default": "full",
+      "options": [
+        {
+          "label": "Full name",
+          "value": "full"
+        },
+        {
+          "label": "First initial + surname",
+          "value": "initial"
+        },
+        {
+          "label": "Surname only",
+          "value": "surname"
+        }
+      ]
+    },
+    {
+      "key": "rowHeight",
+      "label": "02 · Layout — Minimum row height",
+      "type": "range",
+      "default": 30,
+      "min": 20,
+      "max": 52,
+      "step": 1,
+      "help": "Sets the compact row density. Rows never stretch to fill unused height when only a few cars are visible."
+    },
+    {
+      "key": "fontScale",
+      "label": "02 · Layout — Typography scale",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.72,
+      "max": 1.25,
+      "step": 0.01
+    },
+    {
+      "key": "headerMode",
+      "label": "02 · Layout — Header",
+      "type": "select",
+      "default": "compact",
+      "options": [
+        {
+          "label": "Compact",
+          "value": "compact"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        },
+        {
+          "label": "Hidden",
+          "value": "hidden"
+        }
+      ]
+    },
+    {
+      "key": "footerMode",
+      "label": "02 · Layout — Footer",
+      "type": "select",
+      "default": "full",
+      "options": [
+        {
+          "label": "Compact",
+          "value": "compact"
+        },
+        {
+          "label": "Full",
+          "value": "full"
+        },
+        {
+          "label": "Hidden",
+          "value": "hidden"
+        }
+      ]
+    },
+    {
+      "key": "playerHighlight",
+      "label": "02 · Layout — Player highlight",
+      "type": "select",
+      "default": "row",
+      "options": [
+        {
+          "label": "Highlighted row",
+          "value": "row"
+        },
+        {
+          "label": "Accent stripe only",
+          "value": "stripe"
+        },
+        {
+          "label": "Name only",
+          "value": "name"
+        }
+      ]
+    },
+    {
+      "key": "cornerRadius",
+      "label": "02 · Layout — Corner radius",
+      "type": "range",
+      "default": 3,
+      "min": 0,
+      "max": 10,
       "step": 1
     },
     {
-      "key": "showNames",
-      "label": "Show driver names",
-      "type": "boolean",
-      "default": true
-    },
-    {
-      "key": "hideWhenEmpty",
-      "label": "Hide when no nearby cars",
-      "type": "boolean",
-      "default": true
-    },
-    {
-      "key": "accent",
-      "label": "Header accent",
-      "type": "color",
-      "default": "#d64b7f"
-    },
-    {
-      "key": "opacity",
-      "label": "Panel opacity",
+      "key": "shadowStrength",
+      "label": "02 · Layout — Shadow",
       "type": "range",
-      "default": 0.92,
-      "min": 0.3,
+      "default": 0.2,
+      "min": 0,
       "max": 1,
       "step": 0.05
+    },
+    {
+      "key": "showPosition",
+      "label": "03 · Columns — Position",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "positionMode",
+      "label": "03 · Columns — Position type",
+      "type": "select",
+      "default": "overall",
+      "options": [
+        {
+          "label": "Overall position",
+          "value": "overall"
+        },
+        {
+          "label": "Class position",
+          "value": "class"
+        }
+      ]
+    },
+    {
+      "key": "showCarNumber",
+      "label": "03 · Columns — Car number",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "key": "showLicense",
+      "label": "03 · Columns — Licence",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showIRating",
+      "label": "03 · Columns — iRating",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showClassStripe",
+      "label": "03 · Columns — Class stripe",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showStatus",
+      "label": "03 · Columns — PIT / OUT status",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showTemperature",
+      "label": "04 · Header — Temperature",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "temperatureSource",
+      "label": "04 · Header — Temperature source",
+      "type": "select",
+      "default": "track",
+      "options": [
+        {
+          "label": "Track temperature",
+          "value": "track"
+        },
+        {
+          "label": "Air temperature",
+          "value": "air"
+        }
+      ]
+    },
+    {
+      "key": "showSoF",
+      "label": "04 · Header — Strength of field",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showFieldPosition",
+      "label": "04 · Header — Position / field size",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showLapFooter",
+      "label": "05 · Footer — Lap information",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showSessionFooter",
+      "label": "05 · Footer — Session clock",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "autoHideWhenEmpty",
+      "label": "05 · Behaviour — Auto-hide without nearby cars",
+      "type": "boolean",
+      "default": false,
+      "help": "Opt-in. Legacy hideWhenEmpty settings from Relative 3.x are ignored so upgraded layouts do not disappear unexpectedly."
+    },
+    {
+      "key": "backgroundColor",
+      "label": "06 · Colours — Panel background",
+      "type": "color",
+      "default": "#000000"
+    },
+    {
+      "key": "backgroundOpacity",
+      "label": "06 · Colours — Panel opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "headerColor",
+      "label": "06 · Colours — Header / footer",
+      "type": "color",
+      "default": "#000000"
+    },
+    {
+      "key": "headerOpacity",
+      "label": "06 · Colours — Header / footer opacity",
+      "type": "range",
+      "default": 0.96,
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "rowColor",
+      "label": "06 · Colours — Normal row",
+      "type": "color",
+      "default": "#090909"
+    },
+    {
+      "key": "alternateRowColor",
+      "label": "06 · Colours — Alternate row",
+      "type": "color",
+      "default": "#262626"
+    },
+    {
+      "key": "rowOpacity",
+      "label": "06 · Colours — Row opacity",
+      "type": "range",
+      "default": 0.94,
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "playerRowColor",
+      "label": "06 · Colours — Player row",
+      "type": "color",
+      "default": "#7A6200"
+    },
+    {
+      "key": "playerAccentColor",
+      "label": "06 · Colours — Player accent",
+      "type": "color",
+      "default": "#F2C94C"
+    },
+    {
+      "key": "textColor",
+      "label": "06 · Colours — Primary text",
+      "type": "color",
+      "default": "#F7F7F8"
+    },
+    {
+      "key": "mutedTextColor",
+      "label": "06 · Colours — Secondary text",
+      "type": "color",
+      "default": "#8D8D92"
+    },
+    {
+      "key": "aheadGapColor",
+      "label": "06 · Colours — Ahead gap",
+      "type": "color",
+      "default": "#FFFFFF"
+    },
+    {
+      "key": "behindGapColor",
+      "label": "06 · Colours — Behind gap",
+      "type": "color",
+      "default": "#FFFFFF"
+    },
+    {
+      "key": "pitColor",
+      "label": "06 · Colours — PIT / OUT",
+      "type": "color",
+      "default": "#F2C94C"
+    },
+    {
+      "key": "licenseAColor",
+      "label": "07 · Licences — A",
+      "type": "color",
+      "default": "#3485EB"
+    },
+    {
+      "key": "licenseBColor",
+      "label": "07 · Licences — B",
+      "type": "color",
+      "default": "#20B968"
+    },
+    {
+      "key": "licenseCColor",
+      "label": "07 · Licences — C",
+      "type": "color",
+      "default": "#F2C94C"
+    },
+    {
+      "key": "licenseDColor",
+      "label": "07 · Licences — D",
+      "type": "color",
+      "default": "#F08A24"
+    },
+    {
+      "key": "licenseRColor",
+      "label": "07 · Licences — Rookie",
+      "type": "color",
+      "default": "#D94B4B"
+    },
+    {
+      "key": "classColor1",
+      "label": "08 · Classes — Colour 1",
+      "type": "color",
+      "default": "#35BFE8"
+    },
+    {
+      "key": "classColor2",
+      "label": "08 · Classes — Colour 2",
+      "type": "color",
+      "default": "#FF4F86"
+    },
+    {
+      "key": "classColor3",
+      "label": "08 · Classes — Colour 3",
+      "type": "color",
+      "default": "#F5CF4B"
+    },
+    {
+      "key": "classColor4",
+      "label": "08 · Classes — Colour 4",
+      "type": "color",
+      "default": "#3ED16F"
+    },
+    {
+      "key": "classColor5",
+      "label": "08 · Classes — Colour 5",
+      "type": "color",
+      "default": "#8B7CFF"
+    },
+    {
+      "key": "classColor6",
+      "label": "08 · Classes — Colour 6",
+      "type": "color",
+      "default": "#F08A24"
     }
   ]
 }

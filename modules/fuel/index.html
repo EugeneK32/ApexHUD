@@ -1,26 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Fuel</title>
-  </head>
-  <body>
-    <main id="fuel">
-      <i class="accent-rail"></i>
-      <header><span>FUEL STRATEGY</span><b id="status">LEARNING</b></header>
-      <section class="metrics">
-        <div class="metric primary"><span>REMAINING</span><strong id="level">—</strong><small>LITERS</small></div>
-        <div class="metric"><span>AVG / LAP</span><strong id="per-lap">—</strong><small>L / LAP</small></div>
-        <div class="metric"><span>EST. LAPS</span><strong id="laps">—</strong><small>LAPS</small></div>
-      </section>
-      <footer>
-        <div class="sample-track"><i id="sample-bar"></i></div>
-        <span>ADD TO FINISH <b id="add">—</b></span>
-      </footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Fuel Strategy</title>
+</head>
+<body>
+<main id="fuel" class="module-root fuel"><div data-protocol-error></div><header><span>FUEL STRATEGY</span><strong id="status">LEARNING</strong></header><section class="hero"><div><strong id="fuel-level">—</strong><span id="fuel-unit">L</span></div><div class="laps"><strong id="laps-left">—</strong><span>LAPS</span></div></section><div class="progress"><i id="progress-fill"></i><b id="progress-marker"></b></div><section class="stats"><div><span>PER LAP</span><strong id="per-lap">—</strong></div><div><span>NEED</span><strong id="need">—</strong></div><div><span>ADD</span><strong id="add">—</strong></div></section><footer><span id="finish-info">Waiting for estimate</span><span id="samples"></span></footer></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

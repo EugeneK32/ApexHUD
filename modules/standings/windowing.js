@@ -1,31 +1,50 @@
-export function selectVisibleStandings(entries, requestedRows, playerCarIndex = -1, positionKey = "position") {
-  const rows = clampRows(requestedRows);
-  if (!Array.isArray(entries) || entries.length <= rows) {
-    return Array.isArray(entries) ? entries : [];
+(() => {
+  "use strict";
+function selectVisibleStandings(
+  entries,
+  requestedRows,
+  playerCarIndex = -1,
+  positionKey = "position",
+  focusMode = "hybrid",
+  minimumRows = 5,
+) {
+  const source = Array.isArray(entries) ? entries : [];
+  const rows = clampRows(requestedRows, minimumRows);
+  if (source.length <= rows) return source;
+
+  const playerIndex = findPlayerIndex(source, playerCarIndex);
+  if (focusMode === "leaders" || playerIndex < 0) return source.slice(0, rows);
+
+  if (focusMode === "player") {
+    const leadingRows = Math.floor((rows - 1) / 2);
+    const start = clamp(playerIndex - leadingRows, 0, Math.max(0, source.length - rows));
+    return source.slice(start, start + rows);
   }
 
-  const playerIndex = findPlayerIndex(entries, playerCarIndex);
-  if (playerIndex < 0 || playerIndex < rows) {
-    return entries.slice(0, rows);
+  if (playerIndex < rows) return source.slice(0, rows);
+
+  const contextCount = Math.min(3, rows - 1);
+  const leaderCount = Math.max(1, rows - contextCount);
+  const selected = source.slice(0, leaderCount);
+  const contextStart = clamp(playerIndex - 1, 0, Math.max(0, source.length - contextCount));
+
+  for (const entry of source.slice(contextStart, contextStart + contextCount)) {
+    if (!containsCar(selected, entry)) selected.push(entry);
   }
 
-  const topCount = Math.max(1, rows - 2);
-  const result = entries.slice(0, topCount);
-  const player = entries[playerIndex];
-  const following = entries[playerIndex + 1];
-  const preceding = entries[playerIndex - 1];
-
-  if (!following && preceding && !containsCar(result, preceding)) result.push(preceding);
-  if (player && !containsCar(result, player)) result.push(player);
-  if (following && !containsCar(result, following)) result.push(following);
-
-  return result
+  return selected
     .sort((left, right) => normalizedPosition(left?.[positionKey]) - normalizedPosition(right?.[positionKey]))
     .slice(0, rows);
 }
 
-export function selectGroupedStandings(entries, requestedRows, playerCarIndex = -1) {
+function selectGroupedStandings(
+  entries,
+  requestedRows,
+  playerCarIndex = -1,
+  focusMode = "hybrid",
+) {
   if (!Array.isArray(entries) || entries.length === 0) return [];
+
   const rows = clampRows(requestedRows);
   const groups = groupByClass(entries);
   const orderedGroups = [...groups.values()].sort((left, right) => {
@@ -35,19 +54,32 @@ export function selectGroupedStandings(entries, requestedRows, playerCarIndex = 
   });
 
   const allocations = allocateRows(orderedGroups, rows, playerCarIndex);
-  return orderedGroups.map((group, index) => ({
-    carClassId: group.carClassId,
-    carClassName: group.carClassName,
-    entries: selectVisibleStandings(
-      [...group.entries].sort((a, b) => normalizedPosition(a.classPosition) - normalizedPosition(b.classPosition)),
-      allocations[index],
-      playerCarIndex,
-      "classPosition",
-    ),
-  })).filter((group) => group.entries.length > 0);
+  return orderedGroups
+    .map((group, index) => {
+      const sorted = [...group.entries].sort(
+        (left, right) => normalizedPosition(left.classPosition) - normalizedPosition(right.classPosition),
+      );
+      const groupHasPlayer = sorted.some((entry) => isPlayerEntry(entry, playerCarIndex));
+      const groupFocus = groupHasPlayer ? focusMode : "leaders";
+      return {
+        carClassId: group.carClassId,
+        carClassName: group.carClassName,
+        totalCount: sorted.length,
+        allEntries: sorted,
+        entries: selectVisibleStandings(
+          sorted,
+          allocations[index],
+          playerCarIndex,
+          "classPosition",
+          groupFocus,
+          1,
+        ),
+      };
+    })
+    .filter((group) => group.entries.length > 0);
 }
 
-export function identifyPlayerEntries(entries, player = {}) {
+function identifyPlayerEntries(entries, player = {}) {
   if (!Array.isArray(entries)) return [];
 
   const playerCarIndex = normalizedCarIndex(player?.carIndex);
@@ -81,9 +113,19 @@ export function identifyPlayerEntries(entries, player = {}) {
   }));
 }
 
+function normalizedPosition(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : Number.MAX_SAFE_INTEGER;
+}
+
+function clampRows(value, minimum = 5) {
+  const fallback = minimum <= 1 ? minimum : 16;
+  return Math.max(minimum, Math.min(30, Math.round(Number(value) || fallback)));
+}
+
 function allocateRows(groups, rows, playerCarIndex) {
   const count = groups.length;
-  if (count === 1) return [rows];
+  if (count <= 1) return [rows];
 
   const minimum = rows >= count * 3 ? 3 : Math.max(1, Math.floor(rows / count));
   const allocations = groups.map(() => minimum);
@@ -107,7 +149,7 @@ function allocateRows(groups, rows, playerCarIndex) {
       remaining -= 1;
     }
     cursor += 1;
-    if (cursor > rows * count * 2) break;
+    if (cursor > rows * count * 3) break;
   }
 
   return allocations;
@@ -140,17 +182,16 @@ function findPlayerIndex(entries, playerCarIndex) {
 
 function isPlayerEntry(entry, playerCarIndex) {
   const normalized = normalizedCarIndex(playerCarIndex);
-  return Boolean(entry?.isPlayer) ||
-    (normalized >= 0 && normalizedCarIndex(entry?.carIndex) === normalized);
+  return Boolean(entry?.isPlayer)
+    || (normalized >= 0 && normalizedCarIndex(entry?.carIndex) === normalized);
 }
 
 function containsCar(entries, candidate) {
-  return entries.some((entry) => entry?.carIndex === candidate?.carIndex);
-}
-
-function normalizedPosition(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : Number.MAX_SAFE_INTEGER;
+  const candidateIndex = normalizedCarIndex(candidate?.carIndex);
+  return entries.some((entry) => {
+    const entryIndex = normalizedCarIndex(entry?.carIndex);
+    return candidateIndex >= 0 ? entryIndex === candidateIndex : entry === candidate;
+  });
 }
 
 function normalizedCarIndex(value) {
@@ -158,6 +199,14 @@ function normalizedCarIndex(value) {
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : -1;
 }
 
-function clampRows(value) {
-  return Math.max(5, Math.min(30, Math.round(Number(value) || 16)));
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, value));
 }
+
+  window.StandingsWindowing = Object.freeze({
+    identifyPlayerEntries,
+    normalizedPosition,
+    selectGroupedStandings,
+    selectVisibleStandings,
+  });
+})();

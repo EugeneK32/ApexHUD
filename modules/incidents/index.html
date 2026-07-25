@@ -1,19 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Incidents</title>
-  </head>
-  <body>
-    <main id="incidents">
-      <i class="accent-rail"></i>
-      <header><span>INCIDENTS</span><b id="risk">CLEAN</b></header>
-      <section><strong id="count">0x</strong><small>INCIDENT POINTS</small></section>
-      <footer><b id="message">KEEP IT CLEAN</b></footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Incident Monitor</title>
+</head>
+<body>
+<main id="incidents" class="module-root incidents"><div data-protocol-error></div><header><span>INCIDENTS</span><strong id="state">CLEAN</strong></header><section class="count"><strong id="count">—</strong><span>x</span></section><div class="meter"><i id="fill"></i><b id="limit-marker"></b></div><footer><span id="remaining-label">REMAINING</span><strong id="remaining">—</strong></footer></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>
