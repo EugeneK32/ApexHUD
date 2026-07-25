@@ -1,36 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Driver Inputs</title>
-  </head>
-  <body>
-    <main id="inputs">
-      <i class="accent-rail"></i>
-      <header><b>DRIVER INPUTS</b><span id="steering-value">0°</span></header>
-      <section class="live-inputs">
-        <div class="steering">
-          <span>STEERING</span>
-          <div class="steering-gauge"><i id="steering-marker"></i><b></b></div>
-        </div>
-        <div class="pedals">
-          <div class="pedal throttle"><span>THR</span><div class="pedal-track"><i id="thr-bar"></i></div><b><em id="thr-value">0</em>%</b></div>
-          <div class="pedal brake"><span>BRK</span><div class="pedal-track"><i id="brk-bar"></i></div><b><em id="brk-value">0</em>%</b></div>
-          <div class="pedal clutch"><span>CLT</span><div class="pedal-track"><i id="clt-bar"></i></div><b><em id="clt-value">0</em>%</b></div>
-        </div>
-      </section>
-      <section class="chart">
-        <svg id="pedals" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Pedal input history">
-          <path class="grid" d="M0 50H100 M25 0V100 M50 0V100 M75 0V100" />
-          <polyline id="throttle-line" class="trace throttle-trace" points="" />
-          <polyline id="brake-line" class="trace brake-trace" points="" />
-          <polyline id="clutch-line" class="trace clutch-trace" points="" />
-        </svg>
-      </section>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Driver Inputs</title>
+</head>
+<body>
+<main id="inputs" class="module-root inputs"><div data-protocol-error></div><header><span>DRIVER INPUTS</span><div id="aid-summary">ABS · TC</div></header><section class="input-content"><section id="pedals" class="pedals"><article data-pedal="throttle"><strong>THR</strong><div class="pedal"><i id="throttle-fill"></i><b id="throttle-raw"></b></div><span id="throttle-value">0%</span></article><article data-pedal="brake"><strong>BRK</strong><div class="pedal"><i id="brake-fill"></i><b id="brake-raw"></b></div><span id="brake-value">0%</span></article><article data-pedal="clutch"><strong>CLU</strong><div class="pedal"><i id="clutch-fill"></i><b id="clutch-raw"></b></div><span id="clutch-value">0%</span></article><article data-pedal="handbrake"><strong>HBR</strong><div class="pedal"><i id="handbrake-fill"></i><b id="handbrake-raw"></b></div><span id="handbrake-value">0%</span></article></section><section id="graph-wrap" class="graph-wrap"><canvas id="input-graph" aria-label="Driver input history"></canvas></section></section><section id="steering" class="steering"><div class="steer-track"><i id="steer-fill"></i><b id="steer-marker"></b></div><div><span id="steer-angle">0°</span><span id="torque">0.0 Nm</span><span id="brake-bias">BB —</span></div></section></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

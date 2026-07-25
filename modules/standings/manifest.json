@@ -2,48 +2,48 @@
   "schemaVersion": 1,
   "id": "com.apexhud.standings",
   "name": "Race Standings",
-  "description": "Polished race leaderboard with strong typography, compact multiclass grouping, guaranteed player visibility and automatic Strength of Field summaries.",
-  "version": "3.3.0",
-  "author": "ApexHUD",
+  "description": "A highly configurable, multiclass-ready leaderboard with clear race timing, player focus and a built-in visual-editor preview.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
-    "connection",
     "session",
     "player",
     "standings"
   ],
   "defaultBounds": {
     "x": 0.018,
-    "y": 0.12,
-    "width": 0.27,
-    "height": 0.58
+    "y": 0.08,
+    "width": 0.25,
+    "height": 0.5
   },
   "minimumSize": {
-    "width": 400,
-    "height": 310
+    "width": 290,
+    "height": 180
   },
   "settings": [
     {
       "key": "rows",
-      "label": "Maximum visible drivers",
+      "label": "Display · Maximum drivers",
       "type": "range",
       "default": 12,
-      "min": 7,
+      "min": 5,
       "max": 30,
-      "step": 1
+      "step": 1,
+      "help": "Maximum number of driver rows. Class headers do not count toward this limit."
     },
     {
       "key": "mode",
-      "label": "Cars to show",
+      "label": "Display · Standings mode",
       "type": "select",
       "default": "auto",
       "options": [
         {
-          "label": "Automatic (recommended)",
+          "label": "Automatic",
           "value": "auto"
         },
         {
-          "label": "All cars together",
+          "label": "Overall field",
           "value": "overall"
         },
         {
@@ -51,50 +51,389 @@
           "value": "class"
         },
         {
-          "label": "Separate section for each class",
+          "label": "Group by class",
           "value": "grouped"
         }
       ],
-      "help": "Automatic uses one list in single-class races and separates classes in multiclass races."
+      "help": "Automatic uses a single table in one-class sessions and class sections in multiclass sessions."
     },
     {
-      "key": "showIRating",
-      "label": "Show iRating",
+      "key": "focusMode",
+      "label": "Display · Driver selection",
+      "type": "select",
+      "default": "hybrid",
+      "options": [
+        {
+          "label": "Leaders + my battle",
+          "value": "hybrid"
+        },
+        {
+          "label": "Window around me",
+          "value": "player"
+        },
+        {
+          "label": "Leaders only",
+          "value": "leaders"
+        }
+      ],
+      "help": "Controls which drivers remain visible when the field is larger than the configured row count."
+    },
+    {
+      "key": "gapMode",
+      "label": "Display · Gap column",
+      "type": "select",
+      "default": "interval",
+      "options": [
+        {
+          "label": "Interval to car ahead",
+          "value": "interval"
+        },
+        {
+          "label": "Gap to leader",
+          "value": "leader"
+        },
+        {
+          "label": "Hide gap column",
+          "value": "off"
+        }
+      ]
+    },
+    {
+      "key": "timingColumn",
+      "label": "Display · Lap-time column",
+      "type": "select",
+      "default": "last",
+      "options": [
+        {
+          "label": "Last lap",
+          "value": "last"
+        },
+        {
+          "label": "Best lap",
+          "value": "best"
+        },
+        {
+          "label": "Hide lap times",
+          "value": "off"
+        }
+      ]
+    },
+    {
+      "key": "headerStyle",
+      "label": "Layout · Session header",
+      "type": "select",
+      "default": "compact",
+      "options": [
+        {
+          "label": "Full",
+          "value": "full"
+        },
+        {
+          "label": "Compact",
+          "value": "compact"
+        },
+        {
+          "label": "Hidden",
+          "value": "hidden"
+        }
+      ]
+    },
+    {
+      "key": "density",
+      "label": "Layout · Row density",
+      "type": "select",
+      "default": "compact",
+      "options": [
+        {
+          "label": "Compact",
+          "value": "compact"
+        },
+        {
+          "label": "Regular",
+          "value": "regular"
+        },
+        {
+          "label": "Comfortable",
+          "value": "comfortable"
+        }
+      ]
+    },
+    {
+      "key": "classHeaderStyle",
+      "label": "Layout · Class headers",
+      "type": "select",
+      "default": "solid",
+      "options": [
+        {
+          "label": "Solid colour",
+          "value": "solid"
+        },
+        {
+          "label": "Dark with colour stripe",
+          "value": "stripe"
+        },
+        {
+          "label": "Minimal",
+          "value": "minimal"
+        }
+      ]
+    },
+    {
+      "key": "playerHighlight",
+      "label": "Layout · Player highlight",
+      "type": "select",
+      "default": "row",
+      "options": [
+        {
+          "label": "Highlighted row",
+          "value": "row"
+        },
+        {
+          "label": "Accent line and name",
+          "value": "accent"
+        },
+        {
+          "label": "Name only",
+          "value": "name"
+        }
+      ]
+    },
+    {
+      "key": "nameFormat",
+      "label": "Layout · Driver names",
+      "type": "select",
+      "default": "full",
+      "options": [
+        {
+          "label": "Full name",
+          "value": "full"
+        },
+        {
+          "label": "First initial + surname",
+          "value": "initial"
+        },
+        {
+          "label": "Surname only",
+          "value": "surname"
+        }
+      ]
+    },
+    {
+      "key": "showCarNumber",
+      "label": "Columns · Car number",
       "type": "boolean",
-      "default": false
+      "default": true
+    },
+    {
+      "key": "showPositionChange",
+      "label": "Columns · Position change",
+      "type": "boolean",
+      "default": true,
+      "help": "Calculated from the positions received during the current module session."
     },
     {
       "key": "showLicense",
-      "label": "Show licence",
+      "label": "Columns · Licence class",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showIRating",
+      "label": "Columns · iRating",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showStatus",
+      "label": "Columns · Pit / out status",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showTrack",
+      "label": "Header · Track name",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showFieldCount",
+      "label": "Header · Field size",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showSource",
+      "label": "Header · LIVE / DEMO badge",
       "type": "boolean",
       "default": false
     },
     {
-      "key": "showLastLap",
-      "label": "Show last lap",
-      "type": "boolean",
-      "default": false
+      "key": "fontScale",
+      "label": "Typography · Scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
+      "step": 0.05
     },
     {
-      "key": "compact",
-      "label": "Compact rows",
-      "type": "boolean",
-      "default": false
+      "key": "cornerRadius",
+      "label": "Appearance · Corner radius",
+      "type": "range",
+      "default": 4,
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "key": "shadowStrength",
+      "label": "Appearance · Shadow strength",
+      "type": "range",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "key": "backgroundColor",
+      "label": "Colours · Panel background",
+      "type": "color",
+      "default": "#050506"
+    },
+    {
+      "key": "backgroundOpacity",
+      "label": "Colours · Background opacity",
+      "type": "range",
+      "default": 0.92,
+      "min": 0.25,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "key": "headerBackgroundColor",
+      "label": "Colours · Session header",
+      "type": "color",
+      "default": "#020203"
+    },
+    {
+      "key": "rowColor",
+      "label": "Colours · Primary row",
+      "type": "color",
+      "default": "#151517"
+    },
+    {
+      "key": "alternateRowColor",
+      "label": "Colours · Alternate row",
+      "type": "color",
+      "default": "#29292c"
+    },
+    {
+      "key": "playerRowColor",
+      "label": "Colours · Player row",
+      "type": "color",
+      "default": "#3a3a3e"
+    },
+    {
+      "key": "separatorColor",
+      "label": "Colours · Dividers",
+      "type": "color",
+      "default": "#000000"
+    },
+    {
+      "key": "textColor",
+      "label": "Colours · Primary text",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedTextColor",
+      "label": "Colours · Secondary text",
+      "type": "color",
+      "default": "#a4a4ab"
     },
     {
       "key": "accent",
-      "label": "Player highlight",
+      "label": "Colours · Player accent",
       "type": "color",
       "default": "#f2c94c"
     },
     {
-      "key": "opacity",
-      "label": "Panel opacity",
-      "type": "range",
-      "default": 0.92,
-      "min": 0.4,
-      "max": 1,
-      "step": 0.05
+      "key": "positiveColor",
+      "label": "Colours · Gained positions",
+      "type": "color",
+      "default": "#3ed16f"
+    },
+    {
+      "key": "negativeColor",
+      "label": "Colours · Lost positions",
+      "type": "color",
+      "default": "#ff4b55"
+    },
+    {
+      "key": "fastestColor",
+      "label": "Colours · Fastest lap",
+      "type": "color",
+      "default": "#d95cff"
+    },
+    {
+      "key": "classPalette",
+      "label": "Class colours · Palette",
+      "type": "select",
+      "default": "custom",
+      "options": [
+        {
+          "label": "Custom colours below",
+          "value": "custom"
+        },
+        {
+          "label": "Racing vivid",
+          "value": "vivid"
+        },
+        {
+          "label": "Cool spectrum",
+          "value": "cool"
+        },
+        {
+          "label": "Monochrome accent",
+          "value": "mono"
+        }
+      ]
+    },
+    {
+      "key": "classColor1",
+      "label": "Class colours · Colour 1",
+      "type": "color",
+      "default": "#e6467d"
+    },
+    {
+      "key": "classColor2",
+      "label": "Class colours · Colour 2",
+      "type": "color",
+      "default": "#e5b80b"
+    },
+    {
+      "key": "classColor3",
+      "label": "Class colours · Colour 3",
+      "type": "color",
+      "default": "#18add1"
+    },
+    {
+      "key": "classColor4",
+      "label": "Class colours · Colour 4",
+      "type": "color",
+      "default": "#6b82ef"
+    },
+    {
+      "key": "classColor5",
+      "label": "Class colours · Colour 5",
+      "type": "color",
+      "default": "#56b96c"
+    },
+    {
+      "key": "classColor6",
+      "label": "Class colours · Colour 6",
+      "type": "color",
+      "default": "#e27a35"
     }
   ]
 }

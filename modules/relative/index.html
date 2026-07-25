@@ -2,17 +2,56 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
-    <title>Relative</title>
+    <title>Race Relative</title>
   </head>
   <body>
-    <main id="relative">
-      <i class="accent-rail"></i>
-      <header><b>RELATIVE</b><span id="track">WAITING</span><i>GAP</i></header>
-      <section id="rows"></section>
+    <main id="relative" class="relative">
+      <header id="header" class="hud-header">
+        <div id="temperature" class="header-item align-left">
+          <strong id="temperature-value">—°C</strong>
+          <span id="temperature-label">TRACK</span>
+        </div>
+        <div id="sof" class="header-item align-center">
+          <span>SoF</span>
+          <strong id="sof-value">—</strong>
+        </div>
+        <div id="field" class="header-item align-right">
+          <strong id="field-value">—/—</strong>
+          <span>FIELD</span>
+        </div>
+      </header>
+
+      <section id="rows" class="relative-rows" aria-live="polite"></section>
+
+      <footer id="footer" class="hud-footer">
+        <div id="lap" class="footer-item align-left">
+          <span>Lap</span>
+          <strong id="lap-value">—</strong>
+        </div>
+        <div id="session" class="footer-item align-right">
+          <span id="session-label">Session</span>
+          <strong id="session-value">—</strong>
+        </div>
+      </footer>
+
+      <div id="empty" class="state-panel" hidden>
+        <strong>NO RELATIVE DATA</strong>
+        <span>Waiting for nearby cars</span>
+      </div>
+
+      <div id="protocol" class="state-panel" hidden>
+        <strong>UNSUPPORTED TELEMETRY</strong>
+        <span id="protocol-message">Protocol v6 is required.</span>
+      </div>
     </main>
+
+    <script src="demo-data.js"></script>
     <script src="module.js"></script>
   </body>
 </html>

@@ -2,23 +2,23 @@
   "schemaVersion": 1,
   "id": "com.apexhud.dashboard",
   "name": "Race Dashboard",
-  "description": "Glanceable speed and gear display driven by the simulator shift indicator, car RPM thresholds, and limiter state.",
-  "version": "4.2.0",
-  "author": "ApexHUD",
+  "description": "Premium speed, gear and shift display with live limiter, ABS, TC and brake-bias context.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
     "vehicle",
     "driverAids"
   ],
   "defaultBounds": {
-    "x": 0.39,
-    "y": 0.845,
-    "width": 0.22,
-    "height": 0.12
+    "x": 0.38,
+    "y": 0.86,
+    "width": 0.24,
+    "height": 0.095
   },
   "minimumSize": {
-    "width": 300,
-    "height": 105
+    "width": 240,
+    "height": 74
   },
   "settings": [
     {
@@ -38,39 +38,128 @@
       ]
     },
     {
-      "key": "accent",
+      "key": "shiftDisplay",
+      "label": "Shift display",
+      "type": "select",
+      "default": "segments",
+      "options": [
+        {
+          "label": "Segment bar",
+          "value": "segments"
+        },
+        {
+          "label": "Thin line",
+          "value": "line"
+        },
+        {
+          "label": "Hidden",
+          "value": "hidden"
+        }
+      ]
+    },
+    {
+      "key": "showRpm",
+      "label": "Show RPM",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showAids",
+      "label": "Show ABS, TC and limiter",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showBrakeBias",
+      "label": "Show brake bias",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.94,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "gearColor",
       "label": "Normal gear color",
       "type": "color",
-      "default": "#19bfe6"
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "speedColor",
+      "label": "Speed color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "accentColor",
+      "label": "Active accent",
+      "type": "color",
+      "default": "#27c3e8"
     },
     {
       "key": "warningColor",
-      "label": "Approaching shift point",
+      "label": "Approaching shift color",
       "type": "color",
-      "default": "#f2c94c",
-      "help": "The gear turns yellow as the simulator shift indicator begins to build."
+      "default": "#f2c94c"
     },
     {
       "key": "shiftColor",
-      "label": "Shift now",
+      "label": "Shift now color",
       "type": "color",
-      "default": "#ef4444",
-      "help": "Flashing starts only when the simulator indicator is full or the rev limiter is active."
+      "default": "#ff4d5e"
     },
     {
-      "key": "downshiftColor",
-      "label": "Low RPM hint",
+      "key": "positiveColor",
+      "label": "Active aid color",
       "type": "color",
-      "default": "#54a9d1",
-      "help": "A blue gear is a gentle low-RPM hint, not a car-specific command."
+      "default": "#38d27a"
     },
     {
-      "key": "opacity",
-      "label": "Panel opacity",
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
       "type": "range",
-      "default": 0.92,
-      "min": 0.3,
-      "max": 1,
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

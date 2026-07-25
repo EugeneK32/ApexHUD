@@ -1,23 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Lap Times</title>
-  </head>
-  <body>
-    <main id="times">
-      <i class="accent-rail"></i>
-      <header><span>LAP TIMES</span><div><i id="validity"></i><b id="validity-label">NO DATA</b></div></header>
-      <section>
-        <div class="time-row current"><small>CURRENT</small><b id="current">—</b></div>
-        <div class="time-row last"><small>LAST</small><b id="last">—</b></div>
-        <div class="time-row best"><small>BEST</small><b id="best">—</b></div>
-      </section>
-      <footer><span id="lap">LAP —</span><b id="delta">NO REFERENCE</b></footer>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Lap Timing</title>
+</head>
+<body>
+<main id="lap-times" class="module-root lap-times"><div data-protocol-error></div><header><span id="primary-label">CURRENT LAP</span><strong id="lap-number">LAP —</strong></header><section class="primary"><strong id="primary-time">—</strong><span id="validity">VALID</span></section><section id="secondary" class="secondary"><article id="current-card"><span>CURRENT</span><strong id="current">—</strong></article><article id="last-card"><span>LAST</span><strong id="last">—</strong></article><article id="best-card"><span>BEST</span><strong id="best">—</strong></article></section><footer id="delta-line"><span>DELTA TO BEST</span><strong id="delta">—</strong></footer></main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>

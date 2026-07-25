@@ -1,26 +1,47 @@
 {
   "schemaVersion": 1,
   "id": "com.apexhud.session",
-  "name": "Session Header",
-  "description": "Premium session status with remaining time, lap limit, track name and live flag state.",
-  "version": "3.0.0",
-  "author": "ApexHUD",
+  "name": "Session Overview",
+  "description": "Session type, track, remaining time or laps, active flag and live environment context.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
     "connection",
-    "session"
+    "session",
+    "environment"
   ],
   "defaultBounds": {
-    "x": 0.76,
-    "y": 0.035,
-    "width": 0.22,
-    "height": 0.105
+    "x": 0.72,
+    "y": 0.16,
+    "width": 0.26,
+    "height": 0.115
   },
   "minimumSize": {
-    "width": 310,
+    "width": 250,
     "height": 90
   },
   "settings": [
+    {
+      "key": "primaryMetric",
+      "label": "Primary countdown",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "label": "Automatic",
+          "value": "auto"
+        },
+        {
+          "label": "Time remaining",
+          "value": "time"
+        },
+        {
+          "label": "Laps remaining",
+          "value": "laps"
+        }
+      ]
+    },
     {
       "key": "showTrack",
       "label": "Show track name",
@@ -28,18 +49,138 @@
       "default": true
     },
     {
-      "key": "accent",
-      "label": "Idle flag color",
+      "key": "showEnvironment",
+      "label": "Show temperatures and weather",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "temperatureMode",
+      "label": "Temperature display",
+      "type": "select",
+      "default": "both",
+      "options": [
+        {
+          "label": "Track and air",
+          "value": "both"
+        },
+        {
+          "label": "Track only",
+          "value": "track"
+        },
+        {
+          "label": "Air only",
+          "value": "air"
+        }
+      ]
+    },
+    {
+      "key": "temperatureUnit",
+      "label": "Temperature unit",
+      "type": "select",
+      "default": "celsius",
+      "options": [
+        {
+          "label": "Celsius",
+          "value": "celsius"
+        },
+        {
+          "label": "Fahrenheit",
+          "value": "fahrenheit"
+        }
+      ]
+    },
+    {
+      "key": "showFlag",
+      "label": "Show active flag",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
+      "label": "Panel opacity",
+      "type": "range",
+      "default": 0.94,
+      "min": 0.2,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "accentColor",
+      "label": "Session accent",
       "type": "color",
       "default": "#d64b7f"
     },
     {
-      "key": "opacity",
-      "label": "Panel opacity",
+      "key": "greenColor",
+      "label": "Green flag color",
+      "type": "color",
+      "default": "#37d67a"
+    },
+    {
+      "key": "yellowColor",
+      "label": "Yellow flag color",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "blueColor",
+      "label": "Blue flag color",
+      "type": "color",
+      "default": "#3f8cf4"
+    },
+    {
+      "key": "redColor",
+      "label": "Red flag color",
+      "type": "color",
+      "default": "#ff4d5e"
+    },
+    {
+      "key": "textColor",
+      "label": "Primary text color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
       "type": "range",
-      "default": 0.92,
-      "min": 0.3,
-      "max": 1,
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

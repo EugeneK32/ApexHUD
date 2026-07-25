@@ -4,30 +4,30 @@
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <title>Race Standings</title>
   </head>
   <body>
-    <main id="standings" class="standings">
+    <main id="standings" class="standings header-full density-regular class-style-solid player-highlight-row">
       <header class="session-header">
         <div class="session-primary">
           <span id="session-mark" class="session-mark">R</span>
           <strong id="time-remaining">--:--</strong>
           <span class="separator-slash">/</span>
-          <span id="laps-remaining" class="laps-remaining">TIMED</span>
+          <span id="session-limit" class="session-limit">WAITING</span>
         </div>
 
         <div class="session-meta">
-          <span id="track-name">Waiting for session</span>
+          <span id="track-name" class="track-name">Waiting for session</span>
           <span id="source-badge" class="source-badge">DEMO</span>
         </div>
 
         <div class="header-columns" aria-hidden="true">
-          <span>INT</span>
-          <span>LAST</span>
+          <span id="gap-heading">INT</span>
+          <span id="timing-heading">LAST</span>
         </div>
       </header>
 
@@ -39,8 +39,10 @@
         <span id="field-summary" class="field-summary">0</span>
       </div>
 
-      <section id="rows" class="rows"></section>
+      <section id="rows" class="rows" aria-live="polite"></section>
     </main>
+    <script src="windowing.js"></script>
+    <script src="demo-data.js"></script>
     <script src="module.js"></script>
   </body>
 </html>

@@ -1,67 +1,165 @@
 {
   "schemaVersion": 1,
   "id": "com.apexhud.position",
-  "name": "Position",
-  "description": "Glanceable race position that automatically shows class position in multiclass sessions and filters timing-line flicker.",
-  "version": "3.1.0",
-  "author": "ApexHUD",
+  "name": "Race Position",
+  "description": "Overall and class position with field size, driver identity and live gaps around the player.",
+  "version": "5.1.0",
+  "author": "Eugene Konovalov",
   "entry": "index.html",
   "scopes": [
     "player",
-    "session",
     "standings"
   ],
   "defaultBounds": {
-    "x": 0.018,
-    "y": 0.035,
-    "width": 0.16,
-    "height": 0.13
+    "x": 0.02,
+    "y": 0.05,
+    "width": 0.18,
+    "height": 0.105
   },
   "minimumSize": {
-    "width": 240,
-    "height": 115
+    "width": 220,
+    "height": 82
   },
   "settings": [
     {
-      "key": "mode",
-      "label": "Main position",
+      "key": "primaryPosition",
+      "label": "Primary position",
       "type": "select",
-      "default": "auto",
+      "default": "overall",
       "options": [
         {
-          "label": "Automatic (class in multiclass)",
-          "value": "auto"
-        },
-        {
-          "label": "Overall position",
+          "label": "Overall",
           "value": "overall"
         },
         {
-          "label": "Class position",
+          "label": "Class",
           "value": "class"
         }
-      ],
-      "help": "Automatic shows your class position in multiclass races and overall position in single-class races."
+      ]
     },
     {
-      "key": "showDriver",
-      "label": "Show driver name",
+      "key": "showBothPositions",
+      "label": "Show both positions",
       "type": "boolean",
       "default": true
     },
     {
-      "key": "accent",
-      "label": "Position color",
-      "type": "color",
-      "default": "#19bfe6"
+      "key": "showFieldSize",
+      "label": "Show field size",
+      "type": "boolean",
+      "default": true
     },
     {
-      "key": "opacity",
+      "key": "showDriver",
+      "label": "Show driver name and car",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "showGaps",
+      "label": "Show gap ahead and behind",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "gapMode",
+      "label": "Gap list mode",
+      "type": "select",
+      "default": "sameAsPrimary",
+      "options": [
+        {
+          "label": "Follow primary position",
+          "value": "sameAsPrimary"
+        },
+        {
+          "label": "Overall standings",
+          "value": "overall"
+        },
+        {
+          "label": "Same class",
+          "value": "class"
+        }
+      ]
+    },
+    {
+      "key": "showDemoInEditor",
+      "label": "Show demo data in editor",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "panelColor",
+      "label": "Panel color",
+      "type": "color",
+      "default": "#08090b"
+    },
+    {
+      "key": "panelOpacity",
       "label": "Panel opacity",
       "type": "range",
-      "default": 0.92,
+      "default": 0.94,
       "min": 0.2,
       "max": 1,
+      "step": 0.02
+    },
+    {
+      "key": "accentColor",
+      "label": "Position accent",
+      "type": "color",
+      "default": "#f2c94c"
+    },
+    {
+      "key": "classColor",
+      "label": "Class accent",
+      "type": "color",
+      "default": "#27c3e8"
+    },
+    {
+      "key": "gainColor",
+      "label": "Ahead gap color",
+      "type": "color",
+      "default": "#37d67a"
+    },
+    {
+      "key": "lossColor",
+      "label": "Behind gap color",
+      "type": "color",
+      "default": "#ff4d5e"
+    },
+    {
+      "key": "textColor",
+      "label": "Primary text color",
+      "type": "color",
+      "default": "#f7f7f8"
+    },
+    {
+      "key": "mutedColor",
+      "label": "Secondary text color",
+      "type": "color",
+      "default": "#8d9098"
+    },
+    {
+      "key": "borderColor",
+      "label": "Border color",
+      "type": "color",
+      "default": "#2c2f35"
+    },
+    {
+      "key": "cornerRadius",
+      "label": "Corner radius",
+      "type": "range",
+      "default": 4,
+      "min": 0,
+      "max": 22,
+      "step": 1
+    },
+    {
+      "key": "fontScale",
+      "label": "Typography scale",
+      "type": "range",
+      "default": 0.82,
+      "min": 0.65,
+      "max": 1.25,
       "step": 0.05
     }
   ]

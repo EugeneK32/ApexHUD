@@ -1,29 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self';" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Dashboard</title>
-  </head>
-  <body>
-    <main id="dash">
-      <i class="accent-rail"></i>
-      <section class="speed">
-        <span class="label">SPEED</span>
-        <div><strong id="speed">0</strong><small id="speed-unit">KM/H</small></div>
-      </section>
-      <section class="gear">
-        <span class="label">GEAR</span>
-        <strong id="gear">N</strong>
-      </section>
-      <section class="rpm">
-        <div class="rpm-head"><span id="rpm-state">RPM</span><b id="rpm">0</b></div>
-        <div class="bar"><i id="rpm-bar"></i><em></em></div>
-        <div class="scale"><span id="low-label">LOW</span><span id="shift-label">SHIFT</span></div>
-      </section>
-    </main>
-    <script src="module.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Race Dashboard</title>
+</head>
+<body>
+<main id="dashboard" class="module-root dashboard">
+  <div class="protocol-error" data-protocol-error></div>
+  <div id="shift-strip" class="shift-strip" aria-hidden="true"></div>
+  <section class="dash-body">
+    <div class="speed-block"><span id="speed" class="speed">—</span><span id="speed-unit" class="unit">KM/H</span></div>
+    <div class="gear-block"><span id="gear" class="gear">N</span><span id="shift-state" class="shift-state">READY</span></div>
+    <div class="telemetry-block">
+      <div class="rpm-line"><span class="label">RPM</span><strong id="rpm">—</strong></div>
+      <div class="aids" id="aids">
+        <span id="abs" class="aid">ABS</span><span id="tc" class="aid">TC</span><span id="lim" class="aid">PIT</span><span id="bb" class="aid wide">BB —</span>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="runtime.js"></script>
+<script src="module.js"></script>
+</body>
 </html>
