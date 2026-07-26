@@ -7,6 +7,7 @@ const source: LayoutDocument = {
   display: "primary",
   snapGrid: 8,
   instances: [
+    widget("com.apexhud.radar", true),
     widget("com.apexhud.standings", true),
     widget("com.apexhud.relative", true),
     widget("com.apexhud.delta", true),
@@ -33,6 +34,15 @@ describe("factory scenario profiles", () => {
     expect(enabled(layout, "com.apexhud.delta")).toBe(true);
     expect(enabled(layout, "com.apexhud.standings")).toBe(false);
     expect(enabled(layout, "com.apexhud.relative")).toBe(false);
+  });
+
+  it("keeps time trial focused on hot-lapping data", () => {
+    const layout = factoryLayoutForScenario(source, "time-trial");
+    expect(enabled(layout, "com.apexhud.inputs")).toBe(true);
+    expect(enabled(layout, "com.apexhud.delta")).toBe(true);
+    expect(enabled(layout, "com.apexhud.standings")).toBe(false);
+    expect(enabled(layout, "com.apexhud.relative")).toBe(false);
+    expect(enabled(layout, "com.apexhud.radar")).toBe(false);
   });
 
   it("enables race context and removes coaching traces in race", () => {

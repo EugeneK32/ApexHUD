@@ -46,6 +46,10 @@ const bridge: ApexDesktopBridge = {
     ipcRenderer.invoke("layouts:reset-profile", groupId, scenario) as Promise<LayoutWorkspace>,
   savePreferences: (preferences) =>
     ipcRenderer.invoke("preferences:save", preferences) as Promise<AppPreferences>,
+  beginHotkeyCapture: () =>
+    ipcRenderer.invoke("hotkeys:begin-capture") as Promise<void>,
+  endHotkeyCapture: () =>
+    ipcRenderer.invoke("hotkeys:end-capture") as Promise<void>,
   setEditMode: (enabled) =>
     ipcRenderer.invoke("overlay:set-edit-mode", enabled) as Promise<boolean>,
   setOverlayVisible: (visible) =>

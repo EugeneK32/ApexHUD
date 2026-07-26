@@ -36,6 +36,8 @@ export interface ApexDesktopBridge {
   saveLayoutWorkspace(workspace: LayoutWorkspace): Promise<LayoutWorkspace>;
   resetLayoutProfile(groupId: string, scenario: LayoutScenario): Promise<LayoutWorkspace>;
   savePreferences(preferences: AppPreferences): Promise<AppPreferences>;
+  beginHotkeyCapture(): Promise<void>;
+  endHotkeyCapture(): Promise<void>;
   setEditMode(enabled: boolean): Promise<boolean>;
   setOverlayVisible(visible: boolean): Promise<boolean>;
   setSessionActive(active: boolean): Promise<boolean>;

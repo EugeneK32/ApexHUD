@@ -12,6 +12,7 @@ describe("0.8 Control Center and editor UX", () => {
     );
     expect(translate("ru", "layouts")).toBe("Раскладки");
     expect(scenarioLabel("ru", "test-drive")).toBe("Тестовый заезд");
+    expect(scenarioLabel("ru", "time-trial")).toBe("Заезд на время");
   });
 
   it("guides users from layout set to Base Layout and session layouts", async () => {

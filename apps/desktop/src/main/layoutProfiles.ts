@@ -28,6 +28,16 @@ const ENABLED_BY_SCENARIO: Partial<Record<LayoutScenario, ReadonlySet<string>>> 
     "com.apexhud.incidents",
     "com.apexhud.lap-times",
   ]),
+  "time-trial": new Set([
+    "com.apexhud.delta",
+    "com.apexhud.dashboard",
+    "com.apexhud.inputs",
+    "com.apexhud.fuel",
+    "com.apexhud.session",
+    "com.apexhud.position",
+    "com.apexhud.incidents",
+    "com.apexhud.lap-times",
+  ]),
   qualifying: new Set([
     "com.apexhud.radar",
     "com.apexhud.standings",
@@ -79,6 +89,7 @@ export function factoryLayoutForScenario(
 
     if (instance.moduleId === "com.apexhud.standings") {
       if (scenario === "practice") instance.settings.rows = 12;
+      if (scenario === "time-trial") instance.settings.rows = 8;
       if (scenario === "qualifying") instance.settings.rows = 10;
       if (scenario === "race") instance.settings.rows = 16;
     }

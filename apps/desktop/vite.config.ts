@@ -12,6 +12,7 @@ export default defineConfig({
       input: {
         overlay: resolve(__dirname, "overlay.html"),
         control: resolve(__dirname, "control.html"),
+        splash: resolve(__dirname, "splash.html"),
       },
     },
   },

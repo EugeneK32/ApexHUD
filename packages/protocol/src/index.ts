@@ -359,6 +359,7 @@ export const LAYOUT_SCENARIOS = [
   "default",
   "test-drive",
   "practice",
+  "time-trial",
   "qualifying",
   "race",
   "replay",
@@ -417,13 +418,23 @@ export type AppLocale =
   | "zh-CN"
   | "ja";
 
+export const HOTKEY_ACTIONS = [
+  "editLayout",
+  "toggleOverlay",
+  "openControlCenter",
+] as const;
+
+export type HotkeyAction = (typeof HOTKEY_ACTIONS)[number];
+export type HotkeyMap = Record<HotkeyAction, string>;
+
 export interface AppPreferences {
-  schemaVersion: 3;
+  schemaVersion: 4;
   locale: AppLocale;
   overlayAutoHideMode: OverlayAutoHideMode;
   communityRepositoryUrl: string;
   communityBranch: string;
   autoCheckCommunityUpdates: boolean;
+  hotkeys: HotkeyMap;
 }
 
 export type ModuleSource = "built-in" | "local" | "community";

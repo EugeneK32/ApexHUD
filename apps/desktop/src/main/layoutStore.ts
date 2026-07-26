@@ -18,13 +18,14 @@ import {
 import { migrateModuleInstance } from "./layoutMigration.js";
 import { factoryLayoutForScenario } from "./layoutProfiles.js";
 
-const CURRENT_LAYOUT_MIGRATION = 10;
+const CURRENT_LAYOUT_MIGRATION = 11;
 const DEFAULT_GROUP_ID = "default";
 
 const PROFILE_NAMES: Record<LayoutScenario, string> = {
   default: "Base Layout",
   "test-drive": "Test drive",
   practice: "Practice",
+  "time-trial": "Time trial",
   qualifying: "Qualifying",
   race: "Race",
   replay: "Replay",

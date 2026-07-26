@@ -23,6 +23,8 @@ describe("layout scenario detection", () => {
   it("maps live session metadata to automatic profiles", () => {
     expect(scenarioFromTelemetry(session("Practice"))).toBe("practice");
     expect(scenarioFromTelemetry(session("Practice", "Practice", "Race"))).toBe("practice");
+    expect(scenarioFromTelemetry(session("Lone Qualify", "Time Trial", "Time Trial"))).toBe("time-trial");
+    expect(scenarioFromTelemetry(session("Lone Qualify", "TimeTrial", "TimeTrial"))).toBe("time-trial");
     expect(scenarioFromTelemetry(session("Open Qualify"))).toBe("qualifying");
     expect(scenarioFromTelemetry(session("Race"))).toBe("race");
     expect(scenarioFromTelemetry(session("Practice", "Test Drive", "Test"))).toBe("test-drive");

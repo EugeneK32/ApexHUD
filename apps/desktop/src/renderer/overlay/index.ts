@@ -52,6 +52,13 @@ interface PointerAction {
   };
 }
 
+interface FloatingPanelDrag {
+  element: HTMLElement;
+  storageKey: string;
+  offsetX: number;
+  offsetY: number;
+}
+
 class OverlayApplication {
   private modules: DiscoveredModule[] = [];
   private workspace!: LayoutWorkspace;
@@ -59,12 +66,17 @@ class OverlayApplication {
   private automaticScenario: LayoutScenario = "default";
   private editorScenario: LayoutScenario = "default";
   private preferences: AppPreferences = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     locale: "en",
     overlayAutoHideMode: "not-foreground",
     communityRepositoryUrl: "https://github.com/EugeneK32/apexhud-community-modules.git",
     communityBranch: "main",
     autoCheckCommunityUpdates: true,
+    hotkeys: {
+      editLayout: "CommandOrControl+Shift+F10",
+      toggleOverlay: "CommandOrControl+Shift+F11",
+      openControlCenter: "CommandOrControl+Shift+F12",
+    },
   };
   private editMode = false;
   private sessionActive = false;
@@ -72,6 +84,7 @@ class OverlayApplication {
   private frames = new Map<string, FrameRecord>();
   private selectedInstanceId: string | undefined;
   private pointerAction: PointerAction | undefined;
+  private floatingPanelDrag: FloatingPanelDrag | undefined;
   private telemetryStatus: TelemetryStatus = "connecting";
   private telemetry!: TelemetryClient;
   private saveTimer: number | undefined;
@@ -212,7 +225,12 @@ class OverlayApplication {
 
     window.addEventListener("resize", () => this.positionFrames());
     window.addEventListener("pointermove", (event) => this.onPointerMove(event));
-    window.addEventListener("pointerup", () => this.finishPointerAction());
+    const finishPointerInteractions = () => {
+      this.finishFloatingPanelDrag();
+      this.finishPointerAction();
+    };
+    window.addEventListener("pointerup", finishPointerInteractions);
+    window.addEventListener("pointercancel", finishPointerInteractions);
     window.addEventListener("message", (event) => this.onModuleMessage(event));
     window.addEventListener("keydown", (event) => this.onKeyDown(event));
     window.addEventListener("pointerdown", (event) => {
@@ -225,9 +243,10 @@ class OverlayApplication {
   private renderToolbar(): void {
     this.toolbar.innerHTML = "";
 
-    const brand = document.createElement("div");
-    brand.className = "toolbar-brand";
-    brand.innerHTML = `<span class="brand-mark">A</span><span><b>APEX</b>HUD</span>`;
+    const dragHandle = document.createElement("div");
+    dragHandle.className = "toolbar-drag-handle";
+    dragHandle.title = this.t("movePanel");
+    dragHandle.innerHTML = `<i aria-hidden="true">⠿</i><span>${escapeHtml(this.t("layoutEditor"))}</span>`;
 
     const groupDropdown = this.editorDropdown(
       this.t("set"),
@@ -299,7 +318,7 @@ class OverlayApplication {
     spacer.className = "toolbar-spacer";
 
     this.toolbar.append(
-      brand,
+      dragHandle,
       groupDropdown,
       profileDropdown,
       addButton,
@@ -308,6 +327,15 @@ class OverlayApplication {
       spacer,
       this.statusPill,
       doneButton,
+    );
+    this.bindFloatingPanelDrag(
+      this.toolbar,
+      dragHandle,
+      "apexhud.editor.toolbar-position",
+    );
+    this.restoreFloatingPanelPosition(
+      this.toolbar,
+      "apexhud.editor.toolbar-position",
     );
     this.updateStatusPill();
     this.renderAddMenu();
@@ -513,12 +541,30 @@ class OverlayApplication {
     this.inspector.classList.add("has-selection");
 
     const header = document.createElement("header");
+    header.className = "inspector-drag-handle";
+    header.title = this.t("movePanel");
     header.innerHTML = `
-      <div class="inspector-kicker">${escapeHtml(this.t("widgetSettings").toUpperCase())}</div>
-      <h2>${escapeHtml(frame.module.manifest.name)}</h2>
-      <p>${escapeHtml(frame.module.manifest.description)}</p>
+      <span class="panel-grip" aria-hidden="true">⠿</span>
+      <span class="inspector-title"><small>${escapeHtml(this.t("widgetSettings"))}</small><b>${escapeHtml(frame.module.manifest.name)}</b></span>
+      <button type="button" class="inspector-close" aria-label="${escapeHtml(this.t("close"))}">×</button>
     `;
+    header.querySelector<HTMLButtonElement>(".inspector-close")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      this.selectedInstanceId = undefined;
+      this.updateSelection();
+      this.renderInspector();
+    });
     this.inspector.append(header);
+    this.bindFloatingPanelDrag(
+      this.inspector,
+      header,
+      "apexhud.editor.inspector-position",
+      ".inspector-close",
+    );
+    this.restoreFloatingPanelPosition(
+      this.inspector,
+      "apexhud.editor.inspector-position",
+    );
 
     for (const field of frame.module.manifest.settings) {
       this.inspector.append(this.createSetting(frame, field));
@@ -804,6 +850,71 @@ class OverlayApplication {
     }
   }
 
+  private bindFloatingPanelDrag(
+    element: HTMLElement,
+    handle: HTMLElement,
+    storageKey: string,
+    ignoreSelector?: string,
+  ): void {
+    handle.addEventListener("pointerdown", (event) => {
+      if (!this.editMode) return;
+      const target = event.target as HTMLElement | null;
+      if (ignoreSelector && target?.closest(ignoreSelector)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeEditorPopovers();
+      const rect = element.getBoundingClientRect();
+      this.floatingPanelDrag = {
+        element,
+        storageKey,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top,
+      };
+      element.classList.add("panel-dragging");
+    });
+  }
+
+  private restoreFloatingPanelPosition(
+    element: HTMLElement,
+    storageKey: string,
+  ): void {
+    window.requestAnimationFrame(() => {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (!raw) return;
+        const position = JSON.parse(raw) as { x?: number; y?: number };
+        const rect = element.getBoundingClientRect();
+        const availableX = Math.max(0, window.innerWidth - rect.width);
+        const availableY = Math.max(0, window.innerHeight - rect.height);
+        const left = clamp(Number(position.x ?? 0), 0, 1) * availableX;
+        const top = clamp(Number(position.y ?? 0), 0, 1) * availableY;
+        element.style.left = `${left}px`;
+        element.style.top = `${top}px`;
+        element.style.right = "auto";
+        element.style.transform = "none";
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      }
+    });
+  }
+
+  private finishFloatingPanelDrag(): void {
+    const drag = this.floatingPanelDrag;
+    if (!drag) return;
+    drag.element.classList.remove("panel-dragging");
+    const rect = drag.element.getBoundingClientRect();
+    const availableX = Math.max(1, window.innerWidth - rect.width);
+    const availableY = Math.max(1, window.innerHeight - rect.height);
+    window.localStorage.setItem(
+      drag.storageKey,
+      JSON.stringify({
+        x: clamp(rect.left / availableX, 0, 1),
+        y: clamp(rect.top / availableY, 0, 1),
+      }),
+    );
+    this.floatingPanelDrag = undefined;
+  }
+
   private beginPointerAction(
     event: PointerEvent,
     instanceId: string,
@@ -834,6 +945,26 @@ class OverlayApplication {
   }
 
   private onPointerMove(event: PointerEvent): void {
+    if (this.floatingPanelDrag) {
+      const drag = this.floatingPanelDrag;
+      const rect = drag.element.getBoundingClientRect();
+      const left = clamp(
+        event.clientX - drag.offsetX,
+        8,
+        Math.max(8, window.innerWidth - rect.width - 8),
+      );
+      const top = clamp(
+        event.clientY - drag.offsetY,
+        8,
+        Math.max(8, window.innerHeight - rect.height - 8),
+      );
+      drag.element.style.left = `${left}px`;
+      drag.element.style.top = `${top}px`;
+      drag.element.style.right = "auto";
+      drag.element.style.transform = "none";
+      return;
+    }
+
     const action = this.pointerAction;
     if (!action) return;
     const frame = this.frames.get(action.instanceId);
@@ -1179,7 +1310,15 @@ class OverlayApplication {
   }
 
   private toggleAddMenu(): void {
-    this.addMenu.classList.toggle("open");
+    const willOpen = !this.addMenu.classList.contains("open");
+    this.addMenu.classList.toggle("open", willOpen);
+    if (!willOpen) return;
+
+    const toolbarRect = this.toolbar.getBoundingClientRect();
+    const menuWidth = 320;
+    this.addMenu.style.left = `${clamp(toolbarRect.left, 8, window.innerWidth - menuWidth - 8)}px`;
+    this.addMenu.style.top = `${Math.min(window.innerHeight - 120, toolbarRect.bottom + 8)}px`;
+    this.addMenu.style.transform = "none";
   }
 
   private button(label: string, onClick: () => void): HTMLButtonElement {

@@ -13,6 +13,8 @@ import {
 import path from "node:path";
 import type {
   AppPreferences,
+  HotkeyAction,
+  HotkeyMap,
   LayoutScenario,
   LayoutWorkspace,
 } from "@apexhud/protocol";
@@ -20,7 +22,11 @@ import { LayoutStore } from "./layoutStore.js";
 import { ModuleCatalog } from "./moduleCatalog.js";
 import { TelemetryProcess } from "./telemetryProcess.js";
 import { IRacingDisplayManager } from "./iracingDisplayManager.js";
-import { PreferencesStore } from "./preferencesStore.js";
+import {
+  DEFAULT_HOTKEYS,
+  PreferencesStore,
+  sanitizePreferences,
+} from "./preferencesStore.js";
 import { CommunityModuleService } from "./communityModuleService.js";
 
 protocol.registerSchemesAsPrivileged([
@@ -42,13 +48,15 @@ if (process.platform === "win32") {
 
 const singleInstance = app.requestSingleInstanceLock();
 if (!singleInstance) {
-  app.quit();
+  app.exit(0);
 }
 
+let splashWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 let controlWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isQuitting = false;
+let pendingShowControlCenter = false;
 let editMode = false;
 let overlayVisible = true;
 let sessionActive = false;
@@ -56,12 +64,13 @@ let overlayTopmostTimer: NodeJS.Timeout | null = null;
 let communityUpdateTimer: NodeJS.Timeout | null = null;
 let communityInitialTimer: NodeJS.Timeout | null = null;
 let preferences: AppPreferences = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   locale: "en",
   overlayAutoHideMode: "not-foreground",
   communityRepositoryUrl: "https://github.com/EugeneK32/apexhud-community-modules.git",
   communityBranch: "main",
   autoCheckCommunityUpdates: true,
+  hotkeys: structuredClone(DEFAULT_HOTKEYS),
 };
 
 const telemetryUrl =
@@ -75,19 +84,40 @@ const community = new CommunityModuleService(modules);
 
 if (singleInstance) {
   app.on("second-instance", () => {
+    pendingShowControlCenter = true;
     showControlCenter();
   });
 
   app.whenReady().then(async () => {
+    await createSplashWindow();
     modules.registerProtocolHandler();
-    await modules.reload();
-    preferences = await preferencesStore.get();
+    const [, loadedPreferences] = await Promise.all([
+      modules.reload(),
+      preferencesStore.get(),
+    ]);
+    preferences = loadedPreferences;
     registerIpc();
-    registerHotkeys();
+
+    const failedHotkeys = registerHotkeys(preferences.hotkeys);
+    if (failedHotkeys.length > 0) {
+      preferences = await preferencesStore.save({
+        ...preferences,
+        hotkeys: structuredClone(DEFAULT_HOTKEYS),
+      });
+      registerHotkeys(preferences.hotkeys);
+    }
+
     createTray();
-    await telemetry.start();
+    const telemetryStartup = telemetry.start().catch((error) => {
+      console.error("Telemetry service could not start", error);
+    });
     await createWindows();
+    void telemetryStartup;
     scheduleCommunityUpdates();
+  }).catch((error) => {
+    console.error("ApexHUD startup failed", error);
+    closeSplash();
+    app.quit();
   });
 
   app.on("before-quit", () => {
@@ -95,6 +125,7 @@ if (singleInstance) {
     stopOverlayTopmostGuard();
     stopCommunityUpdates();
     telemetry.stop();
+    closeSplash();
     globalShortcut.unregisterAll();
   });
 
@@ -105,6 +136,46 @@ if (singleInstance) {
   app.on("activate", () => {
     showControlCenter();
   });
+}
+
+async function createSplashWindow(): Promise<void> {
+  splashWindow = new BrowserWindow({
+    width: 430,
+    height: 244,
+    useContentSize: true,
+    center: true,
+    frame: false,
+    resizable: false,
+    movable: true,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    alwaysOnTop: true,
+    skipTaskbar: false,
+    show: false,
+    backgroundColor: "#0d1116",
+    icon: appIconPath(),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+      webSecurity: true,
+    },
+  });
+
+  splashWindow.on("closed", () => {
+    splashWindow = null;
+  });
+  await loadRenderer(splashWindow, "splash.html");
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.show();
+  }
+}
+
+function closeSplash(): void {
+  if (!splashWindow || splashWindow.isDestroyed()) return;
+  splashWindow.close();
+  splashWindow = null;
 }
 
 async function createWindows(): Promise<void> {
@@ -146,7 +217,6 @@ async function createWindows(): Promise<void> {
   startOverlayTopmostGuard();
   setOverlayMousePassthrough(true);
   overlayWindow.setFocusable(false);
-  await loadRenderer(overlayWindow, "overlay.html");
   overlayWindow.once("ready-to-show", () => {
     applyOverlayVisibility();
   });
@@ -170,14 +240,25 @@ async function createWindows(): Promise<void> {
     },
   });
 
-  await loadRenderer(controlWindow, "control.html");
-  controlWindow.once("ready-to-show", () => controlWindow?.show());
+  controlWindow.once("ready-to-show", () => {
+    closeSplash();
+    controlWindow?.show();
+    if (pendingShowControlCenter) {
+      pendingShowControlCenter = false;
+      showControlCenter();
+    }
+  });
   controlWindow.on("close", (event) => {
     if (!isQuitting) {
       event.preventDefault();
       controlWindow?.hide();
     }
   });
+
+  await Promise.all([
+    loadRenderer(controlWindow, "control.html"),
+    loadRenderer(overlayWindow, "overlay.html"),
+  ]);
 
   screen.on("display-metrics-changed", syncOverlayBounds);
   screen.on("display-added", syncOverlayBounds);
@@ -186,7 +267,7 @@ async function createWindows(): Promise<void> {
 
 async function loadRenderer(
   window: BrowserWindow,
-  page: "overlay.html" | "control.html",
+  page: "overlay.html" | "control.html" | "splash.html",
 ): Promise<void> {
   const devServer = process.env.VITE_DEV_SERVER_URL;
   if (devServer) {
@@ -252,10 +333,30 @@ function registerIpc(): void {
       return reset;
     },
   );
+  ipcMain.handle("hotkeys:begin-capture", () => {
+    globalShortcut.unregisterAll();
+  });
+  ipcMain.handle("hotkeys:end-capture", () => {
+    registerHotkeys(preferences.hotkeys);
+  });
+
   ipcMain.handle(
     "preferences:save",
     async (_event, next: AppPreferences) => {
-      preferences = await preferencesStore.save(next);
+      const candidate = sanitizePreferences(next);
+      const previous = preferences;
+      const failed = registerHotkeys(candidate.hotkeys);
+      if (failed.length > 0) {
+        registerHotkeys(previous.hotkeys);
+        throw new Error(`Could not register: ${failed.join(", ")}`);
+      }
+
+      try {
+        preferences = await preferencesStore.save(candidate);
+      } catch (error) {
+        registerHotkeys(previous.hotkeys);
+        throw error;
+      }
       broadcast("preferences:changed", preferences);
       scheduleCommunityUpdates();
       return preferences;
@@ -291,16 +392,29 @@ function registerIpc(): void {
   ipcMain.handle("app:quit", () => app.quit());
 }
 
-function registerHotkeys(): void {
-  globalShortcut.register("CommandOrControl+Shift+F10", () => {
-    setEditMode(!editMode);
-  });
-  globalShortcut.register("CommandOrControl+Shift+F11", () => {
-    setOverlayVisible(!overlayVisible);
-  });
-  globalShortcut.register("CommandOrControl+Shift+F12", () => {
-    showControlCenter();
-  });
+function registerHotkeys(hotkeys: HotkeyMap): HotkeyAction[] {
+  globalShortcut.unregisterAll();
+  const failed: HotkeyAction[] = [];
+  const handlers: Record<HotkeyAction, () => void> = {
+    editLayout: () => setEditMode(!editMode),
+    toggleOverlay: () => setOverlayVisible(!overlayVisible),
+    openControlCenter: () => showControlCenter(),
+  };
+
+  for (const action of Object.keys(handlers) as HotkeyAction[]) {
+    try {
+      if (!globalShortcut.register(hotkeys[action], handlers[action])) {
+        failed.push(action);
+      }
+    } catch {
+      failed.push(action);
+    }
+  }
+
+  if (failed.length > 0) {
+    globalShortcut.unregisterAll();
+  }
+  return failed;
 }
 
 function appIconPath(): string {
@@ -484,10 +598,12 @@ function stopCommunityUpdates(): void {
 }
 
 function showControlCenter(): void {
-  if (!controlWindow) {
+  if (!controlWindow || controlWindow.isDestroyed()) {
+    pendingShowControlCenter = true;
     return;
   }
 
+  pendingShowControlCenter = false;
   controlWindow.show();
   if (controlWindow.isMinimized()) {
     controlWindow.restore();
