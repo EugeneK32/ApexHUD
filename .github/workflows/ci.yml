@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
   pull_request:
   workflow_dispatch:
 
@@ -11,6 +13,7 @@ permissions:
 
 jobs:
   verify:
+    name: Verify
     runs-on: windows-latest
     timeout-minutes: 20
 
@@ -47,15 +50,18 @@ jobs:
     needs: verify
     runs-on: windows-latest
     timeout-minutes: 30
+
     concurrency:
       group: apexhud-release-main
       cancel-in-progress: false
+
     permissions:
       contents: write
 
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
       GIT_AUTHOR_NAME: github-actions[bot]
       GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
       GIT_COMMITTER_NAME: github-actions[bot]
@@ -66,6 +72,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -84,8 +91,14 @@ jobs:
       - name: Publish telemetry service
         shell: pwsh
         run: |
-          Remove-Item .\services\telemetry\publish -Recurse -Force -ErrorAction SilentlyContinue
-          dotnet publish .\services\telemetry\ApexHUD.Telemetry.csproj `
+          Remove-Item `
+            .\services\telemetry\publish `
+            -Recurse `
+            -Force `
+            -ErrorAction SilentlyContinue
+
+          dotnet publish `
+            .\services\telemetry\ApexHUD.Telemetry.csproj `
             --configuration Release `
             --runtime win-x64 `
             --self-contained false `
