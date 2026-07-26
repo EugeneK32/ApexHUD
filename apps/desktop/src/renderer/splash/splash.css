@@ -1,0 +1,168 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  background: #0d1116;
+  color: #f4f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#app::-webkit-scrollbar,
+.startup-card::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  background: #0d1116;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.startup-card {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 0;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px 28px 22px;
+  overflow: hidden;
+  border: 1px solid #26313b;
+  background:
+    linear-gradient(145deg, rgba(84,169,209,.055), transparent 46%),
+    #11171d;
+}
+
+.startup-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #efc33f;
+}
+
+.startup-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.startup-brand img {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+}
+
+.startup-brand div {
+  min-width: 0;
+}
+
+.startup-brand b,
+.startup-brand span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startup-brand b {
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+
+.startup-brand span {
+  margin-top: 2px;
+  color: #7f8994;
+  font-size: 10px;
+}
+
+.startup-copy {
+  align-self: center;
+  min-width: 0;
+  padding: 18px 0 14px;
+}
+
+.startup-copy h1 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 25px;
+  line-height: 1.15;
+  letter-spacing: -.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startup-copy p {
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: #a5adb7;
+  font-size: 12px;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.startup-progress {
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  background: #202932;
+}
+
+.startup-progress i {
+  display: block;
+  width: 34%;
+  height: 100%;
+  background: #efc33f;
+  animation: startup 1.1s ease-in-out infinite;
+}
+
+.startup-card small {
+  display: block;
+  min-width: 0;
+  margin-top: 14px;
+  overflow: hidden;
+  color: #69737d;
+  font-size: 10px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes startup {
+  from { transform: translateX(-110%); }
+  50% { transform: translateX(100%); }
+  to { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-progress i {
+    width: 70%;
+    animation: none;
+  }
+}

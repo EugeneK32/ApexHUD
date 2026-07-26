@@ -179,3 +179,112 @@ body.is-editing .module-frame[data-module-id="com.apexhud.radar"], body.is-editi
   .toolbar-brand, .telemetry-pill { display: none; }
   .editor-dropdown-trigger { min-width: 125px; }
 }
+
+/* 0.12 — compact movable editor chrome */
+.editor-toolbar {
+  top: 12px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  min-height: 50px;
+  gap: 5px;
+  flex-wrap: nowrap;
+  padding: 6px;
+  border-radius: 9px;
+  background: rgba(15, 18, 22, .96);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .34);
+}
+.editor-toolbar.visible { display: flex; }
+.toolbar-drag-handle {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 5px;
+  color: #a8b0ba;
+  cursor: move;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+}
+.toolbar-drag-handle i { color: #68717d; font-size: 15px; font-style: normal; line-height: 1; }
+.toolbar-drag-handle span { max-width: 76px; overflow: hidden; text-overflow: ellipsis; }
+.editor-toolbar.panel-dragging,
+.editor-inspector.panel-dragging { cursor: grabbing; opacity: .94; }
+.editor-dropdown-trigger {
+  min-width: 118px;
+  height: 36px;
+  grid-template-rows: 11px 15px;
+  padding: 4px 8px 4px 9px;
+  border-radius: 6px;
+}
+.editor-dropdown.scenario .editor-dropdown-trigger { min-width: 126px; }
+.editor-dropdown-trigger small { font-size: 7px; }
+.editor-dropdown-trigger b { font-size: 9px; }
+.editor-dropdown-menu { top: calc(100% + 5px); min-width: 205px; }
+.toolbar-button { min-height: 36px; padding: 0 10px; border-radius: 6px; font-size: 9px; }
+.telemetry-pill { height: 30px; padding-inline: 9px; font-size: 8px; }
+
+.editor-inspector {
+  top: 74px;
+  right: 12px;
+  width: 282px;
+  max-height: calc(100vh - 88px);
+  padding: 0 13px 13px;
+  border-radius: 9px;
+  background: rgba(15, 18, 22, .97);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .36);
+}
+.editor-inspector header.inspector-drag-handle {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 7px;
+  margin: 0 -13px;
+  padding: 7px 9px;
+  border-bottom: 1px solid #292f37;
+  background: rgba(15, 18, 22, .99);
+  cursor: move;
+}
+.panel-grip { color: #68717d; font-size: 16px; line-height: 1; }
+.inspector-title { min-width: 0; }
+.inspector-title small,
+.inspector-title b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inspector-title small { color: #7f8893; font-size: 7px; text-transform: uppercase; letter-spacing: .08em; }
+.inspector-title b { margin-top: 3px; color: #f5f6f7; font-size: 12px; }
+.inspector-close { width: 24px; height: 24px; border: 0; border-radius: 5px; background: transparent; color: #8e97a2; cursor: pointer; font-size: 16px; line-height: 1; }
+.inspector-close:hover { background: #242a31; color: #fff; }
+.setting-row { min-height: 50px; gap: 9px; }
+.setting-heading { font-size: 9px; }
+.setting-heading small { max-width: 140px; font-size: 8px; }
+.setting-input { width: 96px; min-height: 29px; font-size: 9px; }
+.range-control { gap: 5px; }
+.range-control input { width: 82px; }
+.setting-dropdown { width: 108px; }
+.setting-dropdown-trigger { min-height: 29px; font-size: 8px; }
+.color-control { width: 106px; }
+.color-trigger { min-height: 30px; }
+.color-swatch { width: 21px; height: 21px; }
+.inspector-actions { gap: 6px; padding-top: 12px; }
+.inspector-actions .toolbar-button { min-height: 32px; }
+
+.add-menu {
+  width: 320px;
+  max-height: min(560px, calc(100vh - 90px));
+  padding: 7px;
+  border-radius: 8px;
+}
+.add-menu-item { padding: 7px; }
+.add-icon { width: 30px; height: 30px; }
+
+@media (max-width: 1120px) {
+  .editor-toolbar { left: 12px; right: auto; width: max-content; max-width: calc(100vw - 24px); transform: translateY(-10px); }
+  .editor-toolbar.visible { transform: translateY(0); }
+  .toolbar-drag-handle span, .telemetry-pill { display: none; }
+  .editor-dropdown-trigger { min-width: 108px; }
+}
+.toolbar-drag-handle,
+.inspector-drag-handle { user-select: none; touch-action: none; }

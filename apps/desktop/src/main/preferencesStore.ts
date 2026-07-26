@@ -1,14 +1,23 @@
 import { app } from "electron";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type {
-  AppLocale,
-  AppPreferences,
-  OverlayAutoHideMode,
+import {
+  HOTKEY_ACTIONS,
+  type AppLocale,
+  type AppPreferences,
+  type HotkeyAction,
+  type HotkeyMap,
+  type OverlayAutoHideMode,
 } from "@apexhud/protocol";
 
 export const DEFAULT_COMMUNITY_REPOSITORY =
   "https://github.com/EugeneK32/apexhud-community-modules.git";
+
+export const DEFAULT_HOTKEYS: HotkeyMap = {
+  editLayout: "CommandOrControl+Shift+F10",
+  toggleOverlay: "CommandOrControl+Shift+F11",
+  openControlCenter: "CommandOrControl+Shift+F12",
+};
 
 const LEGACY_COMMUNITY_REPOSITORIES = new Set([
   "https://github.com/apexhud/community-modules.git",
@@ -16,12 +25,13 @@ const LEGACY_COMMUNITY_REPOSITORIES = new Set([
 ]);
 
 const DEFAULTS: AppPreferences = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   locale: "en",
   overlayAutoHideMode: "not-foreground",
   communityRepositoryUrl: DEFAULT_COMMUNITY_REPOSITORY,
   communityBranch: "main",
   autoCheckCommunityUpdates: true,
+  hotkeys: structuredClone(DEFAULT_HOTKEYS),
 };
 
 export class PreferencesStore {
@@ -33,13 +43,8 @@ export class PreferencesStore {
     try {
       const raw = await readFile(this.path(), "utf8");
       const parsed = JSON.parse(raw) as Partial<AppPreferences>;
-      const sanitized = sanitize(parsed);
-      const unchanged = parsed.schemaVersion === sanitized.schemaVersion
-        && parsed.locale === sanitized.locale
-        && parsed.overlayAutoHideMode === sanitized.overlayAutoHideMode
-        && parsed.communityRepositoryUrl === sanitized.communityRepositoryUrl
-        && parsed.communityBranch === sanitized.communityBranch
-        && parsed.autoCheckCommunityUpdates === sanitized.autoCheckCommunityUpdates;
+      const sanitized = sanitizePreferences(parsed);
+      const unchanged = JSON.stringify(parsed) === JSON.stringify(sanitized);
       this.cached = unchanged ? sanitized : await this.save(sanitized);
     } catch {
       const defaults = structuredClone(DEFAULTS);
@@ -51,7 +56,7 @@ export class PreferencesStore {
   }
 
   public async save(preferences: AppPreferences): Promise<AppPreferences> {
-    const sanitized = sanitize(preferences);
+    const sanitized = sanitizePreferences(preferences);
     const destination = this.path();
     const temporary = `${destination}.tmp`;
     await mkdir(path.dirname(destination), { recursive: true });
@@ -66,7 +71,7 @@ export class PreferencesStore {
   }
 }
 
-function sanitize(value: Partial<AppPreferences>): AppPreferences {
+export function sanitizePreferences(value: Partial<AppPreferences>): AppPreferences {
   const allowed = new Set<OverlayAutoHideMode>([
     "not-foreground",
     "minimized",
@@ -74,7 +79,7 @@ function sanitize(value: Partial<AppPreferences>): AppPreferences {
   ]);
 
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     locale: sanitizeLocale(value.locale),
     overlayAutoHideMode: allowed.has(value?.overlayAutoHideMode as OverlayAutoHideMode)
       ? value.overlayAutoHideMode as OverlayAutoHideMode
@@ -85,7 +90,55 @@ function sanitize(value: Partial<AppPreferences>): AppPreferences {
       typeof value.autoCheckCommunityUpdates === "boolean"
         ? value.autoCheckCommunityUpdates
         : DEFAULTS.autoCheckCommunityUpdates,
+    hotkeys: sanitizeHotkeys(value.hotkeys),
   };
+}
+
+function sanitizeHotkeys(value: unknown): HotkeyMap {
+  const source = value && typeof value === "object"
+    ? value as Partial<Record<HotkeyAction, unknown>>
+    : {};
+  const used = new Set<string>();
+  const result = {} as HotkeyMap;
+
+  for (const action of HOTKEY_ACTIONS) {
+    const preferred = sanitizeAccelerator(source[action]);
+    const candidate = preferred && !used.has(preferred.toLowerCase())
+      ? preferred
+      : firstAvailableDefault(action, used);
+    result[action] = candidate;
+    used.add(candidate.toLowerCase());
+  }
+
+  return result;
+}
+
+
+function firstAvailableDefault(
+  action: HotkeyAction,
+  used: ReadonlySet<string>,
+): string {
+  const candidates = [
+    DEFAULT_HOTKEYS[action],
+    ...HOTKEY_ACTIONS.map((candidate) => DEFAULT_HOTKEYS[candidate]),
+  ];
+  return candidates.find((candidate) => !used.has(candidate.toLowerCase()))
+    ?? DEFAULT_HOTKEYS[action];
+}
+
+function sanitizeAccelerator(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim().slice(0, 80);
+  if (!trimmed || !/^[a-zA-Z0-9+_-]+$/.test(trimmed)) return undefined;
+  const parts = trimmed.split("+").filter(Boolean);
+  if (parts.length === 0) return undefined;
+  const hasModifier = parts.some((part) =>
+    ["commandorcontrol", "command", "control", "ctrl", "alt", "option", "shift", "super", "meta"]
+      .includes(part.toLowerCase()),
+  );
+  const finalKey = parts.at(-1) ?? "";
+  const standaloneFunctionKey = /^f(?:[1-9]|1[0-9]|2[0-4])$/i.test(finalKey);
+  return hasModifier || standaloneFunctionKey ? trimmed : undefined;
 }
 
 function sanitizeRepository(value: unknown): string {
@@ -105,7 +158,6 @@ function sanitizeBranch(value: unknown): string {
   const trimmed = value.trim().replace(/[^a-zA-Z0-9._/-]/g, "").slice(0, 120);
   return trimmed || DEFAULTS.communityBranch;
 }
-
 
 function sanitizeLocale(value: unknown): AppLocale {
   const supported = new Set<AppLocale>([

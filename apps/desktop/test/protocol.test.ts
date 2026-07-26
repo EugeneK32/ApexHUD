@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   defaultsFromManifest,
+  HOTKEY_ACTIONS,
+  LAYOUT_SCENARIOS,
   sanitizeBounds,
   validateModuleManifest,
   type ModuleManifest,
@@ -24,6 +26,11 @@ const manifest: ModuleManifest = {
 };
 
 describe('module protocol', () => {
+  it('exposes the session modes and assignable hotkey actions', () => {
+    expect(LAYOUT_SCENARIOS).toContain('time-trial');
+    expect(HOTKEY_ACTIONS).toEqual(['editLayout', 'toggleOverlay', 'openControlCenter']);
+  });
+
   it('accepts a valid manifest', () => {
     expect(validateModuleManifest(manifest)).toEqual({ valid: true, errors: [] });
   });

@@ -4,6 +4,7 @@ import {
   type CommunityCatalogState,
   type CommunityModuleEntry,
   type DiscoveredModule,
+  type HotkeyAction,
   type LayoutDocument,
   type LayoutScenario,
   type LayoutTarget,
@@ -34,6 +35,7 @@ import "./control.css";
 
 type ControlTab = "overview" | "layouts" | "widgets" | "settings";
 type WidgetView = "installed" | "discover";
+type SettingsSection = "general" | "overlay" | "integrations" | "hotkeys";
 
 const TAB_META: Record<ControlTab, { title: TranslationKey; description: TranslationKey }> = {
   overview: { title: "overview", description: "overviewDescription" },
@@ -52,12 +54,14 @@ class ControlCenterApplication {
   private profilePinned = false;
   private activeTab: ControlTab = "overview";
   private widgetView: WidgetView = "installed";
+  private settingsSection: SettingsSection = "general";
   private latestFrame: TelemetrySnapshot | undefined;
   private telemetryStatus: TelemetryStatus = "connecting";
   private telemetry!: TelemetryClient;
   private moduleSearch = "";
   private moduleOrigin = "all";
   private communityBusy = new Set<string>();
+  private hotkeyCapture: HotkeyAction | undefined;
 
   private readonly app = document.querySelector<HTMLDivElement>("#app");
 
@@ -185,6 +189,7 @@ class ControlCenterApplication {
   }
 
   private openTab(tab: ControlTab): void {
+    if (tab !== "settings") this.cancelHotkeyCapture();
     this.activeTab = tab;
     for (const button of document.querySelectorAll<HTMLElement>("[data-tab]")) {
       button.classList.toggle("active", button.dataset.tab === tab);
@@ -203,30 +208,45 @@ class ControlCenterApplication {
     const group = activeLayoutGroup(this.workspace);
     const enabled = this.currentLayout.instances.filter((instance) => instance.enabled).length;
     this.element("overview-root").innerHTML = `
-      <div class="home-grid">
-        <article class="home-session panel">
-          <div class="home-status-line"><span id="home-source-dot" class="home-live-dot"></span><b id="source-title">${escapeHtml(this.t("waitingForIRacing"))}</b><span id="source-badge" class="status-badge">${escapeHtml(this.t("waiting").toUpperCase())}</span></div>
-          <p id="source-description">${escapeHtml(this.t("telemetryReady"))}</p>
-          <div class="home-session-facts">
-            <div><span>${escapeHtml(this.t("track"))}</span><b id="track-name">—</b></div>
-            <div><span>${escapeHtml(this.t("session"))}</span><b id="session-type">—</b></div>
-            <div><span>${escapeHtml(this.t("remaining"))}</span><b id="session-time">—</b></div>
+      <div class="home-rework">
+        <article class="home-rework-hero panel">
+          <div class="hero-main-column">
+            <div class="home-status-line"><span id="home-source-dot" class="home-live-dot"></span><b id="source-title">${escapeHtml(this.t("waitingForIRacing"))}</b><span id="source-badge" class="status-badge">${escapeHtml(this.t("waiting").toUpperCase())}</span></div>
+            <p id="source-description" class="hero-description">${escapeHtml(this.t("telemetryReady"))}</p>
+            <div class="hero-track-block">
+              <small>${escapeHtml(this.t("track"))}</small>
+              <h2 id="track-name">—</h2>
+            </div>
+            <div class="hero-stats-grid">
+              <div><span>${escapeHtml(this.t("session"))}</span><b id="session-type">—</b></div>
+              <div><span>${escapeHtml(this.t("remaining"))}</span><b id="session-time">—</b></div>
+              <div><span>${escapeHtml(this.t("field"))}</span><b id="field-size">—</b></div>
+            </div>
           </div>
-          <button id="home-edit" class="button primary home-primary">${escapeHtml(this.t("editOverlay"))}</button>
+          <aside class="hero-side-column">
+            <div class="hero-side-heading">
+              <b>${escapeHtml(this.t("controlCenter"))}</b>
+              <p>${escapeHtml(this.t("overviewDescription"))}</p>
+            </div>
+            <div class="hero-side-actions">
+              <button id="overview-layouts" class="action-panel"><div><b>${escapeHtml(this.t("configureLayouts"))}</b><small>${escapeHtml(this.t("chooseSessionLayout"))}</small></div></button>
+              <button id="overview-widgets" class="action-panel"><div><b>${escapeHtml(this.t("moduleLibrary"))}</b><small>${escapeHtml(this.t("browseInstalled"))}</small></div></button>
+              <button id="overview-settings" class="action-panel"><div><b>${escapeHtml(this.t("settings"))}</b><small>${escapeHtml(this.t("settingsDescription"))}</small></div></button>
+            </div>
+          </aside>
         </article>
-        <article class="home-hud panel">
-          <span>${escapeHtml(this.t("activeLayout"))}</span>
-          <h2>${escapeHtml(group.name)}</h2>
-          <p>${escapeHtml(this.scenario(this.selectedScenario))} · ${escapeHtml(this.t("placedCount", { count: enabled }))}</p>
-          <div class="home-links">
-            <button id="overview-layouts" class="home-link"><b>${escapeHtml(this.t("layouts"))}</b><span>${escapeHtml(this.t("configureLayouts"))}</span></button>
-            <button id="overview-widgets" class="home-link"><b>${escapeHtml(this.t("moduleLibrary"))}</b><span>${escapeHtml(this.t("browseInstalled"))}</span></button>
-          </div>
-        </article>
+
+        <section class="home-summary-strip" aria-label="${escapeHtml(this.t("activeLayout"))}">
+          <article class="summary-card-simple"><small>${escapeHtml(this.t("activeLayout"))}</small><b>${escapeHtml(group.name)}</b></article>
+          <article class="summary-card-simple"><small>${escapeHtml(this.t("sessionLayout"))}</small><b>${escapeHtml(this.scenario(this.selectedScenario))}</b></article>
+          <article class="summary-card-simple"><small>${escapeHtml(this.t("widgets"))}</small><b>${escapeHtml(String(enabled))}</b></article>
+          <article class="summary-card-simple summary-card-live"><small>${escapeHtml(this.t("telemetry"))}</small><b>iRacing</b></article>
+        </section>
       </div>`;
-    this.element("home-edit").addEventListener("click", () => void window.apexDesktop.setEditMode(true));
+
     this.element("overview-layouts").addEventListener("click", () => this.openTab("layouts"));
     this.element("overview-widgets").addEventListener("click", () => { this.widgetView = "installed"; this.openTab("widgets"); this.renderWidgets(); });
+    this.element("overview-settings").addEventListener("click", () => this.openTab("settings"));
     this.renderTelemetry();
   }
 
@@ -450,38 +470,84 @@ class ControlCenterApplication {
     const root = document.getElementById("settings-root");
     if (!root) return;
     const preferences = this.state.preferences;
+    const navigation = [
+      { id: "general" as const, title: this.t("appearanceAndLanguage"), hint: this.t("languageHint") },
+      { id: "overlay" as const, title: this.t("visibility"), hint: this.t("autoHideHint") },
+      { id: "integrations" as const, title: this.t("community"), hint: this.t("gitCatalog") },
+      { id: "hotkeys" as const, title: this.t("shortcuts"), hint: this.t("hotkeyHint") },
+    ];
+
     root.innerHTML = `
-      <div class="settings-grid">
-        <article class="panel settings-card"><span class="panel-eyebrow">${escapeHtml(this.t("appearanceAndLanguage"))}</span><h2>${escapeHtml(this.t("language"))}</h2><label class="setting-row"><span><b>${escapeHtml(this.t("language"))}</b><small>${escapeHtml(this.t("languageHint"))}</small></span><select id="locale-select"></select></label></article>
-        <article class="panel settings-card"><span class="panel-eyebrow">${escapeHtml(this.t("visibility"))}</span><h2>${escapeHtml(this.t("visibility"))}</h2><label class="setting-row"><span><b>${escapeHtml(this.t("autoHideMode"))}</b><small>${escapeHtml(this.t("autoHideHint"))}</small></span><select id="autohide-select"><option value="not-foreground">${escapeHtml(this.t("hideNotForeground"))}</option><option value="minimized">${escapeHtml(this.t("hideMinimized"))}</option><option value="never">${escapeHtml(this.t("neverHide"))}</option></select></label></article>
-        <details class="panel settings-advanced"><summary><span><b>${escapeHtml(this.t("community"))}</b><small>${escapeHtml(this.t("gitCatalog"))}</small></span><i>⌄</i></summary><div class="settings-advanced-body"><label class="field"><span>${escapeHtml(this.t("repositoryUrl"))}</span><input id="community-url" value="${escapeHtml(preferences.communityRepositoryUrl)}" /></label><label class="field"><span>${escapeHtml(this.t("branch"))}</span><input id="community-branch" value="${escapeHtml(preferences.communityBranch)}" /></label><label class="check-row"><input id="community-auto" type="checkbox" ${preferences.autoCheckCommunityUpdates ? "checked" : ""}/><span><b>${escapeHtml(this.t("automaticUpdates"))}</b><small>${escapeHtml(this.t("automaticUpdatesHint"))}</small></span></label><button id="save-community-settings" class="button secondary">${escapeHtml(this.t("saveCatalog"))}</button><p class="settings-note">${escapeHtml(this.t("gitUsageNote"))}</p></div></details>
-        <article class="panel settings-card"><span class="panel-eyebrow">${escapeHtml(this.t("iracingWindow"))}</span><h2>${escapeHtml(this.t("fullscreenCompatibility"))}</h2><p id="compatibility-status" class="settings-note">${escapeHtml(this.t("inspectingConfiguration"))}</p><button id="borderless-button" class="button secondary">${escapeHtml(this.t("configureBorderless"))}</button></article>
-        <article class="panel settings-card"><span class="panel-eyebrow">${escapeHtml(this.t("shortcuts"))}</span><h2>${escapeHtml(this.t("globalHotkeys"))}</h2><div class="shortcut-list"><div><kbd>Ctrl Shift F10</kbd><span>${escapeHtml(this.t("editLayout"))}</span></div><div><kbd>Ctrl Shift F11</kbd><span>${escapeHtml(this.t("toggleOverlay"))}</span></div><div><kbd>Ctrl Shift F12</kbd><span>${escapeHtml(this.t("openControlCenter"))}</span></div></div></article>
+      <div class="settings-workspace">
+        <aside class="settings-nav" aria-label="${escapeHtml(this.t("settings"))}">
+          ${navigation.map((item) => `<button type="button" class="settings-nav-item${item.id === this.settingsSection ? " active" : ""}" data-settings-section="${item.id}"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.hint)}</small></button>`).join("")}
+        </aside>
+        <section class="settings-stage panel">
+          ${this.renderSettingsSection(preferences)}
+        </section>
       </div>`;
 
-    const localeSelect = this.element<HTMLSelectElement>("locale-select");
-    for (const locale of SUPPORTED_LOCALES) {
-      localeSelect.append(option(locale.value, locale.label, locale.value === preferences.locale));
+    for (const button of root.querySelectorAll<HTMLButtonElement>("[data-settings-section]")) {
+      button.addEventListener("click", () => {
+        this.cancelHotkeyCapture();
+        this.settingsSection = button.dataset.settingsSection as SettingsSection;
+        this.renderSettings();
+      });
     }
-    localeSelect.addEventListener("change", () => void this.savePreferences({ locale: localeSelect.value as AppLocale }));
 
-    const autoHide = this.element<HTMLSelectElement>("autohide-select");
-    autoHide.value = preferences.overlayAutoHideMode;
-    autoHide.addEventListener("change", () => void this.savePreferences({ overlayAutoHideMode: autoHide.value as AppRuntimeState["preferences"]["overlayAutoHideMode"] }));
-    this.element("save-community-settings").addEventListener("click", () => void this.savePreferences({
-      communityRepositoryUrl: this.element<HTMLInputElement>("community-url").value,
-      communityBranch: this.element<HTMLInputElement>("community-branch").value,
-      autoCheckCommunityUpdates: this.element<HTMLInputElement>("community-auto").checked,
-    }));
-    this.element("borderless-button").addEventListener("click", async () => {
-      try {
-        const result = await window.apexDesktop.enableIRacingBorderless();
-        this.element("compatibility-status").textContent = result.message;
-      } catch (error) {
-        this.element("compatibility-status").textContent = error instanceof Error ? error.message : String(error);
+    if (this.settingsSection === "general") {
+      const localeSelect = this.element<HTMLSelectElement>("locale-select");
+      for (const locale of SUPPORTED_LOCALES) {
+        localeSelect.append(option(locale.value, locale.label, locale.value === preferences.locale));
       }
-    });
-    void this.updateDisplayCompatibility();
+      localeSelect.addEventListener("change", () => void this.savePreferences({ locale: localeSelect.value as AppLocale }));
+    }
+
+    if (this.settingsSection === "overlay") {
+      const autoHide = this.element<HTMLSelectElement>("autohide-select");
+      autoHide.value = preferences.overlayAutoHideMode;
+      autoHide.addEventListener("change", () => void this.savePreferences({ overlayAutoHideMode: autoHide.value as AppRuntimeState["preferences"]["overlayAutoHideMode"] }));
+      this.element("borderless-button").addEventListener("click", async () => {
+        try {
+          const result = await window.apexDesktop.enableIRacingBorderless();
+          this.element("compatibility-status").textContent = result.message;
+        } catch (error) {
+          this.element("compatibility-status").textContent = error instanceof Error ? error.message : String(error);
+        }
+      });
+      void this.updateDisplayCompatibility();
+    }
+
+    if (this.settingsSection === "integrations") {
+      this.element("save-community-settings").addEventListener("click", () => void this.savePreferences({
+        communityRepositoryUrl: this.element<HTMLInputElement>("community-url").value,
+        communityBranch: this.element<HTMLInputElement>("community-branch").value,
+        autoCheckCommunityUpdates: this.element<HTMLInputElement>("community-auto").checked,
+      }));
+    }
+
+    if (this.settingsSection === "hotkeys") {
+      for (const button of root.querySelectorAll<HTMLButtonElement>("[data-hotkey-action]")) {
+        button.addEventListener("click", () => void this.beginHotkeyCapture(button.dataset.hotkeyAction as HotkeyAction));
+      }
+    }
+  }
+
+  private renderSettingsSection(preferences: AppRuntimeState["preferences"]): string {
+    if (this.settingsSection === "general") {
+      return `<header class="settings-stage-header"><span>${escapeHtml(this.t("appearanceAndLanguage"))}</span><h2>${escapeHtml(this.t("language"))}</h2><p>${escapeHtml(this.t("languageHint"))}</p></header><div class="settings-form"><label class="setting-row prominent"><span><b>${escapeHtml(this.t("language"))}</b><small>${escapeHtml(this.t("languageHint"))}</small></span><select id="locale-select"></select></label></div>`;
+    }
+    if (this.settingsSection === "overlay") {
+      return `<header class="settings-stage-header"><span>${escapeHtml(this.t("visibility"))}</span><h2>${escapeHtml(this.t("autoHideMode"))}</h2><p>${escapeHtml(this.t("autoHideHint"))}</p></header><div class="settings-form"><label class="setting-row prominent"><span><b>${escapeHtml(this.t("autoHideMode"))}</b><small>${escapeHtml(this.t("autoHideHint"))}</small></span><select id="autohide-select"><option value="not-foreground">${escapeHtml(this.t("hideNotForeground"))}</option><option value="minimized">${escapeHtml(this.t("hideMinimized"))}</option><option value="never">${escapeHtml(this.t("neverHide"))}</option></select></label><div class="setting-row action-row"><span><b>${escapeHtml(this.t("fullscreenCompatibility"))}</b><small id="compatibility-status">${escapeHtml(this.t("inspectingConfiguration"))}</small></span><button id="borderless-button" class="button secondary">${escapeHtml(this.t("configureBorderless"))}</button></div></div>`;
+    }
+    if (this.settingsSection === "integrations") {
+      return `<header class="settings-stage-header"><span>${escapeHtml(this.t("community"))}</span><h2>${escapeHtml(this.t("gitCatalog"))}</h2><p>${escapeHtml(this.t("gitUsageNote"))}</p></header><div class="settings-form integration-form"><label class="field"><span>${escapeHtml(this.t("repositoryUrl"))}</span><input id="community-url" value="${escapeHtml(preferences.communityRepositoryUrl)}" /></label><label class="field"><span>${escapeHtml(this.t("branch"))}</span><input id="community-branch" value="${escapeHtml(preferences.communityBranch)}" /></label><label class="check-row integration-check"><input id="community-auto" type="checkbox" ${preferences.autoCheckCommunityUpdates ? "checked" : ""}/><span><b>${escapeHtml(this.t("automaticUpdates"))}</b><small>${escapeHtml(this.t("automaticUpdatesHint"))}</small></span></label><button id="save-community-settings" class="button primary integration-save">${escapeHtml(this.t("saveCatalog"))}</button></div>`;
+    }
+    return `<header class="settings-stage-header"><span>${escapeHtml(this.t("shortcuts"))}</span><h2>${escapeHtml(this.t("globalHotkeys"))}</h2><p>${escapeHtml(this.t("hotkeyHint"))}</p></header><div class="shortcut-list">
+      ${this.hotkeyRow("editLayout", this.t("editLayout"), preferences.hotkeys.editLayout)}
+      ${this.hotkeyRow("toggleOverlay", this.t("toggleOverlay"), preferences.hotkeys.toggleOverlay)}
+      ${this.hotkeyRow("openControlCenter", this.t("openControlCenter"), preferences.hotkeys.openControlCenter)}
+    </div><p id="hotkey-message" class="settings-message" aria-live="polite"></p>`;
   }
 
   private async switchGroup(groupId: string): Promise<void> {
@@ -638,13 +704,146 @@ class ControlCenterApplication {
     }
   }
 
-  private async savePreferences(changes: Partial<AppRuntimeState["preferences"]>): Promise<void> {
-    this.state.preferences = await window.apexDesktop.savePreferences({
-      ...this.state.preferences,
-      ...changes,
-      schemaVersion: 3,
+  private async savePreferences(changes: Partial<AppRuntimeState["preferences"]>): Promise<boolean> {
+    try {
+      this.state.preferences = await window.apexDesktop.savePreferences({
+        ...this.state.preferences,
+        ...changes,
+        schemaVersion: 4,
+      });
+      this.renderSettings();
+      return true;
+    } catch (error) {
+      console.error("Could not save preferences", error);
+      return false;
+    }
+  }
+
+  private hotkeyRow(action: HotkeyAction, label: string, accelerator: string): string {
+    return `<div class="shortcut-row"><span><b>${escapeHtml(label)}</b><small>${escapeHtml(this.formatHotkey(accelerator))}</small></span><button type="button" class="hotkey-button" data-hotkey-action="${action}"><kbd>${escapeHtml(this.formatHotkey(accelerator))}</kbd><em>${escapeHtml(this.t("changeHotkey"))}</em></button></div>`;
+  }
+
+  private async beginHotkeyCapture(action: HotkeyAction): Promise<void> {
+    window.removeEventListener("keydown", this.captureHotkey, true);
+    const wasCapturing = this.hotkeyCapture !== undefined;
+    this.hotkeyCapture = undefined;
+    for (const candidate of document.querySelectorAll<HTMLElement>(".hotkey-button.capturing")) {
+      candidate.classList.remove("capturing");
+    }
+    if (wasCapturing) await window.apexDesktop.endHotkeyCapture();
+
+    try {
+      await window.apexDesktop.beginHotkeyCapture();
+    } catch (error) {
+      console.error("Could not begin hotkey capture", error);
+      const message = document.getElementById("hotkey-message");
+      if (message) message.textContent = this.t("hotkeySaveFailed");
+      return;
+    }
+
+    this.hotkeyCapture = action;
+    const button = document.querySelector<HTMLButtonElement>(`[data-hotkey-action="${action}"]`);
+    if (button) {
+      button.classList.add("capturing");
+      button.focus();
+      button.querySelector("kbd")!.textContent = this.t("pressShortcut");
+    }
+    const message = document.getElementById("hotkey-message");
+    if (message) message.textContent = "";
+    window.addEventListener("keydown", this.captureHotkey, true);
+  }
+
+  private cancelHotkeyCapture(): void {
+    window.removeEventListener("keydown", this.captureHotkey, true);
+    const wasCapturing = this.hotkeyCapture !== undefined;
+    this.hotkeyCapture = undefined;
+    for (const button of document.querySelectorAll<HTMLElement>(".hotkey-button.capturing")) {
+      button.classList.remove("capturing");
+    }
+    if (wasCapturing) void window.apexDesktop.endHotkeyCapture();
+  }
+
+  private readonly captureHotkey = (event: KeyboardEvent): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if (["Control", "Meta", "Alt", "Shift"].includes(event.key)) return;
+
+    window.removeEventListener("keydown", this.captureHotkey, true);
+    const action = this.hotkeyCapture;
+    this.hotkeyCapture = undefined;
+    if (!action || event.key === "Escape") {
+      void window.apexDesktop.endHotkeyCapture();
+      this.renderSettings();
+      return;
+    }
+
+    const accelerator = this.acceleratorFromEvent(event);
+    if (!accelerator) {
+      void window.apexDesktop.endHotkeyCapture();
+      this.renderSettings();
+      const message = document.getElementById("hotkey-message");
+      if (message) message.textContent = this.t("hotkeyInvalid");
+      return;
+    }
+
+    const duplicate = (Object.entries(this.state.preferences.hotkeys) as Array<[HotkeyAction, string]>)
+      .some(([candidate, value]) => candidate !== action && value.toLowerCase() === accelerator.toLowerCase());
+    if (duplicate) {
+      void window.apexDesktop.endHotkeyCapture();
+      this.renderSettings();
+      const message = document.getElementById("hotkey-message");
+      if (message) message.textContent = this.t("hotkeyConflict");
+      return;
+    }
+    void this.commitHotkey(action, accelerator);
+  };
+
+  private async commitHotkey(action: HotkeyAction, accelerator: string): Promise<void> {
+    const saved = await this.savePreferences({
+      hotkeys: { ...this.state.preferences.hotkeys, [action]: accelerator },
     });
-    this.renderSettings();
+    const message = document.getElementById("hotkey-message");
+    if (!saved) {
+      await window.apexDesktop.endHotkeyCapture();
+      if (message) message.textContent = this.t("hotkeySaveFailed");
+      return;
+    }
+    if (message) {
+      message.classList.add("success");
+      message.textContent = `✓ ${this.formatHotkey(accelerator)}`;
+    }
+  }
+
+  private acceleratorFromEvent(event: KeyboardEvent): string | undefined {
+    const modifiers: string[] = [];
+    if (event.ctrlKey || event.metaKey) modifiers.push("CommandOrControl");
+    if (event.altKey) modifiers.push("Alt");
+    if (event.shiftKey) modifiers.push("Shift");
+
+    const codeAliases: Record<string, string> = {
+      Space: "Space", ArrowUp: "Up", ArrowDown: "Down", ArrowLeft: "Left", ArrowRight: "Right",
+      Escape: "Esc", Delete: "Delete", Backspace: "Backspace", Enter: "Enter", Tab: "Tab",
+      PageUp: "PageUp", PageDown: "PageDown", Home: "Home", End: "End", Insert: "Insert",
+    };
+    let key = codeAliases[event.code] ?? codeAliases[event.key];
+    if (!key && event.code.startsWith("Key")) key = event.code.slice(3);
+    if (!key && event.code.startsWith("Digit")) key = event.code.slice(5);
+    if (!key && /^F(?:[1-9]|1[0-9]|2[0-4])$/.test(event.code)) key = event.code;
+    if (!key) {
+      const raw = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+      if (/^[A-Z0-9]$/.test(raw)) key = raw;
+    }
+    if (!key) return undefined;
+    if (modifiers.length === 0 && !/^F(?:[1-9]|1[0-9]|2[0-4])$/.test(key)) return undefined;
+    return [...modifiers, key].join("+");
+  }
+
+  private formatHotkey(accelerator: string): string {
+    return accelerator
+      .replace("CommandOrControl", "Ctrl")
+      .split("+")
+      .join(" + ");
   }
 
   private onTelemetry(frame: TelemetrySnapshot): void {
@@ -725,8 +924,18 @@ class ControlCenterApplication {
     return this.t("builtIn");
   }
 
+  private navIcon(tab: ControlTab): string {
+    const paths: Record<ControlTab, string> = {
+      overview: '<path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5z"/>',
+      layouts: '<rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="15" width="7" height="6" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/>',
+      widgets: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M17 14v6M14 17h6"/>',
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1H9.6a1.7 1.7 0 0 0-.4-1.1 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4V9.6A1.7 1.7 0 0 0 4 9.2a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1h4a1.7 1.7 0 0 0 .4 1.1 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.28.35.48.75.6 1 .1.36.46.6.84.6h.16v4h-.16a.9.9 0 0 0-.84.6c-.12.25-.32.65-.6 1z"/>',
+    };
+    return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">${paths[tab]}</svg>`;
+  }
+
   private tabButton(tab: ControlTab, label: TranslationKey): string {
-    return `<button class="tab-button" data-tab="${tab}"><b>${escapeHtml(this.t(label))}</b></button>`;
+    return `<button class="tab-button" data-tab="${tab}">${this.navIcon(tab)}<b>${escapeHtml(this.t(label))}</b></button>`;
   }
 
   private element<T extends HTMLElement = HTMLElement>(id: string): T {
