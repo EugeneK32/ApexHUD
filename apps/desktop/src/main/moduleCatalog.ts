@@ -1,4 +1,4 @@
-import { app, protocol } from "electron";
+import { app, protocol, type Session } from "electron";
 import { mkdir, readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -67,8 +67,13 @@ export class ModuleCatalog {
     return structuredClone(this.modules);
   }
 
-  public registerProtocolHandler(): void {
-    protocol.handle("apex-module", async (request) => {
+  public registerProtocolHandler(targetSession?: Session): void {
+    const targetProtocol = targetSession?.protocol ?? protocol;
+    if (targetProtocol.isProtocolHandled("apex-module")) {
+      return;
+    }
+
+    targetProtocol.handle("apex-module", async (request) => {
       try {
         const url = new URL(request.url);
         const moduleId = url.hostname;

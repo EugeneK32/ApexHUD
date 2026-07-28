@@ -29,10 +29,12 @@ import { SerializedLayoutWriter } from "./layoutSaveQueue";
 import { shouldHideModuleAtRuntime } from "./runtimeVisibility";
 import { NativeRadarRenderer } from "./nativeRadar";
 import { isRaceOverlayActive } from "./sessionVisibility";
+import { resolveHudScale, resolveInterfaceScale } from "../../shared/scaling";
 import "./overlay.css";
 
 interface FrameRecord {
   element: HTMLDivElement;
+  scaleStage: HTMLDivElement;
   iframe: HTMLIFrameElement | undefined;
   nativeRadar: NativeRadarRenderer | undefined;
   instance: ModuleInstance;
@@ -66,8 +68,10 @@ class OverlayApplication {
   private automaticScenario: LayoutScenario = "default";
   private editorScenario: LayoutScenario = "default";
   private preferences: AppPreferences = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     locale: "en",
+    interfaceScale: "auto",
+    hudScale: "interface",
     overlayAutoHideMode: "not-foreground",
     communityRepositoryUrl: "https://github.com/EugeneK32/apexhud-community-modules.git",
     communityBranch: "main",
@@ -89,6 +93,8 @@ class OverlayApplication {
   private telemetry!: TelemetryClient;
   private saveTimer: number | undefined;
   private workspaceSignature = "";
+  private resolvedInterfaceScale = 1;
+  private resolvedHudScale = 1;
   private layoutWriter!: SerializedLayoutWriter<LayoutWorkspace>;
 
   private readonly surface = document.createElement("div");
@@ -128,6 +134,7 @@ class OverlayApplication {
     this.sessionActive = state.sessionActive;
     this.preferences = state.preferences;
     document.documentElement.lang = this.preferences.locale;
+    this.applyScalingPreferences();
     this.modules = modules;
     this.workspace = workspace;
     this.automaticScenario = scenarioFromTelemetry(this.latestFrame);
@@ -205,6 +212,7 @@ class OverlayApplication {
       const languageChanged = next.locale !== this.preferences.locale;
       this.preferences = next;
       document.documentElement.lang = next.locale;
+      this.applyScalingPreferences();
       if (languageChanged) {
         this.renderToolbar();
         this.renderInspector();
@@ -223,7 +231,10 @@ class OverlayApplication {
       this.renderToolbar();
     });
 
-    window.addEventListener("resize", () => this.positionFrames());
+    window.addEventListener("resize", () => {
+      this.positionFrames();
+      this.applyScalingPreferences();
+    });
     window.addEventListener("pointermove", (event) => this.onPointerMove(event));
     const finishPointerInteractions = () => {
       this.finishFloatingPanelDrag();
@@ -418,6 +429,10 @@ class OverlayApplication {
         moduleContent = iframe;
       }
 
+      const scaleStage = document.createElement("div");
+      scaleStage.className = "module-scale-stage";
+      scaleStage.append(moduleContent);
+
       const chrome = document.createElement("div");
       chrome.className = "module-edit-chrome";
       chrome.innerHTML = `
@@ -438,10 +453,11 @@ class OverlayApplication {
         if (this.editMode) this.select(instance.instanceId);
       });
 
-      element.append(moduleContent, chrome, resize);
+      element.append(scaleStage, chrome, resize);
       this.surface.append(element);
       this.frames.set(instance.instanceId, {
         element,
+        scaleStage,
         iframe,
         nativeRadar,
         instance,
@@ -458,8 +474,96 @@ class OverlayApplication {
     }
 
     this.positionFrames();
+    this.updateModuleScaleStages();
     this.updateSelection();
     this.updateRuntimeVisibility();
+  }
+
+  private applyScalingPreferences(): void {
+    this.resolvedInterfaceScale = resolveInterfaceScale(
+      this.preferences.interfaceScale,
+      window.innerWidth,
+      window.innerHeight,
+      window.devicePixelRatio,
+    );
+    this.resolvedHudScale = resolveHudScale(
+      this.preferences.hudScale,
+      this.resolvedInterfaceScale,
+    );
+    document.documentElement.dataset.interfaceScale = String(this.resolvedInterfaceScale);
+    document.documentElement.dataset.hudScale = String(this.resolvedHudScale);
+    this.applyEditorChromeScale();
+    this.updateModuleScaleStages();
+  }
+
+  private updateModuleScaleStages(): void {
+    const inverse = 100 / this.resolvedHudScale;
+    for (const frame of this.frames.values()) {
+      frame.scaleStage.style.width = `${inverse}%`;
+      frame.scaleStage.style.height = `${inverse}%`;
+      frame.scaleStage.style.transform = `scale(${this.resolvedHudScale})`;
+    }
+  }
+
+  private applyEditorChromeScale(): void {
+    const scale = this.resolvedInterfaceScale;
+    const root = document.documentElement.style;
+    const px = (name: string, value: number) => root.setProperty(name, `${Math.round(value * scale * 100) / 100}px`);
+
+    px("--editor-toolbar-top", 12);
+    px("--editor-toolbar-min-height", 50);
+    px("--editor-toolbar-gap", 5);
+    px("--editor-toolbar-padding", 6);
+    px("--editor-toolbar-radius", 9);
+    px("--editor-handle-height", 36);
+    px("--editor-handle-gap", 6);
+    px("--editor-handle-font", 9);
+    px("--editor-handle-icon-font", 15);
+    px("--editor-dropdown-width", 118);
+    px("--editor-dropdown-scenario-width", 126);
+    px("--editor-dropdown-height", 36);
+    px("--editor-dropdown-label-font", 7);
+    px("--editor-dropdown-value-font", 9);
+    px("--editor-toolbar-button-height", 36);
+    px("--editor-toolbar-button-font", 9);
+    px("--editor-telemetry-height", 30);
+    px("--editor-telemetry-font", 8);
+    px("--editor-inspector-top", 74);
+    px("--editor-inspector-right", 12);
+    px("--editor-inspector-width", 282);
+    px("--editor-inspector-padding", 13);
+    px("--editor-inspector-radius", 9);
+    px("--editor-inspector-header-height", 52);
+    px("--editor-inspector-title-small", 7);
+    px("--editor-inspector-title", 12);
+    px("--editor-setting-row-height", 50);
+    px("--editor-setting-font", 9);
+    px("--editor-setting-help-font", 8);
+    px("--editor-setting-input-width", 96);
+    px("--editor-setting-input-height", 29);
+    px("--editor-add-menu-width", 320);
+    px("--editor-add-menu-font", 9);
+    px("--editor-add-icon-size", 30);
+    px("--editor-module-chrome-offset", 32);
+    px("--editor-module-chrome-height", 28);
+    px("--editor-module-chrome-font", 10);
+    px("--editor-module-resize-size", 16);
+
+    window.requestAnimationFrame(() => this.keepEditorChromeInViewport());
+  }
+
+  private keepEditorChromeInViewport(): void {
+    for (const element of [this.toolbar, this.inspector]) {
+      if (!element.classList.contains("visible")) continue;
+      const rect = element.getBoundingClientRect();
+      const left = clamp(rect.left, 8, Math.max(8, window.innerWidth - rect.width - 8));
+      const top = clamp(rect.top, 8, Math.max(8, window.innerHeight - rect.height - 8));
+      if (Math.abs(left - rect.left) < 0.5 && Math.abs(top - rect.top) < 0.5) continue;
+      element.style.left = `${left}px`;
+      element.style.top = `${top}px`;
+      element.style.right = "auto";
+      element.style.transform = "none";
+    }
   }
 
   private positionFrames(): void {

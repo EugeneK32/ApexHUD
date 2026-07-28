@@ -5,6 +5,8 @@ import {
   type CommunityModuleEntry,
   type DiscoveredModule,
   type HotkeyAction,
+  type HudScale,
+  type InterfaceScale,
   type LayoutDocument,
   type LayoutScenario,
   type LayoutTarget,
@@ -501,6 +503,22 @@ class ControlCenterApplication {
         localeSelect.append(option(locale.value, locale.label, locale.value === preferences.locale));
       }
       localeSelect.addEventListener("change", () => void this.savePreferences({ locale: localeSelect.value as AppLocale }));
+
+      const interfaceScale = this.element<HTMLSelectElement>("interface-scale-select");
+      interfaceScale.value = String(preferences.interfaceScale);
+      interfaceScale.addEventListener("change", () => void this.savePreferences({
+        interfaceScale: interfaceScale.value === "auto"
+          ? "auto"
+          : Number(interfaceScale.value) as InterfaceScale,
+      }));
+
+      const hudScale = this.element<HTMLSelectElement>("hud-scale-select");
+      hudScale.value = String(preferences.hudScale);
+      hudScale.addEventListener("change", () => void this.savePreferences({
+        hudScale: hudScale.value === "interface"
+          ? "interface"
+          : Number(hudScale.value) as HudScale,
+      }));
     }
 
     if (this.settingsSection === "overlay") {
@@ -535,7 +553,14 @@ class ControlCenterApplication {
 
   private renderSettingsSection(preferences: AppRuntimeState["preferences"]): string {
     if (this.settingsSection === "general") {
-      return `<header class="settings-stage-header"><span>${escapeHtml(this.t("appearanceAndLanguage"))}</span><h2>${escapeHtml(this.t("language"))}</h2><p>${escapeHtml(this.t("languageHint"))}</p></header><div class="settings-form"><label class="setting-row prominent"><span><b>${escapeHtml(this.t("language"))}</b><small>${escapeHtml(this.t("languageHint"))}</small></span><select id="locale-select"></select></label></div>`;
+      const percentOptions = [1, 1.25, 1.5, 1.75, 2]
+        .map((scale) => `<option value="${scale}">${Math.round(scale * 100)}%</option>`)
+        .join("");
+      return `<header class="settings-stage-header"><span>${escapeHtml(this.t("appearanceAndLanguage"))}</span><h2>${escapeHtml(this.t("appearanceAndLanguage"))}</h2><p>${escapeHtml(this.t("interfaceScaleHint"))}</p></header><div class="settings-form">
+        <label class="setting-row prominent"><span><b>${escapeHtml(this.t("language"))}</b><small>${escapeHtml(this.t("languageHint"))}</small></span><select id="locale-select"></select></label>
+        <label class="setting-row prominent"><span><b>${escapeHtml(this.t("interfaceScale"))}</b><small>${escapeHtml(this.t("interfaceScaleHint"))}</small></span><select id="interface-scale-select"><option value="auto">${escapeHtml(this.t("automaticScale"))}</option>${percentOptions}</select></label>
+        <label class="setting-row prominent"><span><b>${escapeHtml(this.t("hudScale"))}</b><small>${escapeHtml(this.t("hudScaleHint"))}</small></span><select id="hud-scale-select"><option value="interface">${escapeHtml(this.t("sameAsInterface"))}</option><option value="0.75">75%</option>${percentOptions}</select></label>
+      </div>`;
     }
     if (this.settingsSection === "overlay") {
       return `<header class="settings-stage-header"><span>${escapeHtml(this.t("visibility"))}</span><h2>${escapeHtml(this.t("autoHideMode"))}</h2><p>${escapeHtml(this.t("autoHideHint"))}</p></header><div class="settings-form"><label class="setting-row prominent"><span><b>${escapeHtml(this.t("autoHideMode"))}</b><small>${escapeHtml(this.t("autoHideHint"))}</small></span><select id="autohide-select"><option value="not-foreground">${escapeHtml(this.t("hideNotForeground"))}</option><option value="minimized">${escapeHtml(this.t("hideMinimized"))}</option><option value="never">${escapeHtml(this.t("neverHide"))}</option></select></label><div class="setting-row action-row"><span><b>${escapeHtml(this.t("fullscreenCompatibility"))}</b><small id="compatibility-status">${escapeHtml(this.t("inspectingConfiguration"))}</small></span><button id="borderless-button" class="button secondary">${escapeHtml(this.t("configureBorderless"))}</button></div></div>`;
@@ -709,7 +734,7 @@ class ControlCenterApplication {
       this.state.preferences = await window.apexDesktop.savePreferences({
         ...this.state.preferences,
         ...changes,
-        schemaVersion: 4,
+        schemaVersion: 5,
       });
       this.renderSettings();
       return true;

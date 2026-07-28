@@ -7,6 +7,8 @@ import {
   type AppPreferences,
   type HotkeyAction,
   type HotkeyMap,
+  type HudScale,
+  type InterfaceScale,
   type OverlayAutoHideMode,
 } from "@apexhud/protocol";
 
@@ -25,8 +27,10 @@ const LEGACY_COMMUNITY_REPOSITORIES = new Set([
 ]);
 
 const DEFAULTS: AppPreferences = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   locale: "en",
+  interfaceScale: "auto",
+  hudScale: "interface",
   overlayAutoHideMode: "not-foreground",
   communityRepositoryUrl: DEFAULT_COMMUNITY_REPOSITORY,
   communityBranch: "main",
@@ -79,8 +83,10 @@ export function sanitizePreferences(value: Partial<AppPreferences>): AppPreferen
   ]);
 
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
     locale: sanitizeLocale(value.locale),
+    interfaceScale: sanitizeInterfaceScale(value.interfaceScale),
+    hudScale: sanitizeHudScale(value.hudScale),
     overlayAutoHideMode: allowed.has(value?.overlayAutoHideMode as OverlayAutoHideMode)
       ? value.overlayAutoHideMode as OverlayAutoHideMode
       : DEFAULTS.overlayAutoHideMode,
@@ -92,6 +98,21 @@ export function sanitizePreferences(value: Partial<AppPreferences>): AppPreferen
         : DEFAULTS.autoCheckCommunityUpdates,
     hotkeys: sanitizeHotkeys(value.hotkeys),
   };
+}
+
+
+function sanitizeInterfaceScale(value: unknown): InterfaceScale {
+  if (value === "auto") return value;
+  return [1, 1.25, 1.5, 1.75, 2].includes(value as number)
+    ? value as InterfaceScale
+    : DEFAULTS.interfaceScale;
+}
+
+function sanitizeHudScale(value: unknown): HudScale {
+  if (value === "interface") return value;
+  return [0.75, 1, 1.25, 1.5, 1.75, 2].includes(value as number)
+    ? value as HudScale
+    : DEFAULTS.hudScale;
 }
 
 function sanitizeHotkeys(value: unknown): HotkeyMap {

@@ -427,9 +427,17 @@ export const HOTKEY_ACTIONS = [
 export type HotkeyAction = (typeof HOTKEY_ACTIONS)[number];
 export type HotkeyMap = Record<HotkeyAction, string>;
 
+export const INTERFACE_SCALE_VALUES = ["auto", 1, 1.25, 1.5, 1.75, 2] as const;
+export type InterfaceScale = (typeof INTERFACE_SCALE_VALUES)[number];
+
+export const HUD_SCALE_VALUES = ["interface", 0.75, 1, 1.25, 1.5, 1.75, 2] as const;
+export type HudScale = (typeof HUD_SCALE_VALUES)[number];
+
 export interface AppPreferences {
-  schemaVersion: 4;
+  schemaVersion: 5;
   locale: AppLocale;
+  interfaceScale: InterfaceScale;
+  hudScale: HudScale;
   overlayAutoHideMode: OverlayAutoHideMode;
   communityRepositoryUrl: string;
   communityBranch: string;

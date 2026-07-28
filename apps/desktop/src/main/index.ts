@@ -28,6 +28,7 @@ import {
   sanitizePreferences,
 } from "./preferencesStore.js";
 import { CommunityModuleService } from "./communityModuleService.js";
+import { resolveInterfaceScale } from "../shared/scaling.js";
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -64,8 +65,10 @@ let overlayTopmostTimer: NodeJS.Timeout | null = null;
 let communityUpdateTimer: NodeJS.Timeout | null = null;
 let communityInitialTimer: NodeJS.Timeout | null = null;
 let preferences: AppPreferences = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   locale: "en",
+  interfaceScale: "auto",
+  hudScale: "interface",
   overlayAutoHideMode: "not-foreground",
   communityRepositoryUrl: "https://github.com/EugeneK32/apexhud-community-modules.git",
   communityBranch: "main",
@@ -233,6 +236,7 @@ async function createWindows(): Promise<void> {
     autoHideMenuBar: true,
     webPreferences: {
       preload,
+      partition: "persist:apexhud-control",
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
@@ -240,6 +244,13 @@ async function createWindows(): Promise<void> {
     },
   });
 
+  // The Control Center uses an isolated Electron session so its browser zoom
+  // cannot affect the overlay. Custom protocols are session-scoped, therefore
+  // module previews must be registered in this session as well.
+  modules.registerProtocolHandler(controlWindow.webContents.session);
+
+  controlWindow.webContents.on("did-finish-load", applyControlInterfaceScale);
+  controlWindow.on("move", applyControlInterfaceScale);
   controlWindow.once("ready-to-show", () => {
     closeSplash();
     controlWindow?.show();
@@ -260,9 +271,18 @@ async function createWindows(): Promise<void> {
     loadRenderer(overlayWindow, "overlay.html"),
   ]);
 
-  screen.on("display-metrics-changed", syncOverlayBounds);
-  screen.on("display-added", syncOverlayBounds);
-  screen.on("display-removed", syncOverlayBounds);
+  screen.on("display-metrics-changed", () => {
+    syncOverlayBounds();
+    applyControlInterfaceScale();
+  });
+  screen.on("display-added", () => {
+    syncOverlayBounds();
+    applyControlInterfaceScale();
+  });
+  screen.on("display-removed", () => {
+    syncOverlayBounds();
+    applyControlInterfaceScale();
+  });
 }
 
 async function loadRenderer(
@@ -357,6 +377,7 @@ function registerIpc(): void {
         registerHotkeys(previous.hotkeys);
         throw error;
       }
+      applyControlInterfaceScale();
       broadcast("preferences:changed", preferences);
       scheduleCommunityUpdates();
       return preferences;
@@ -595,6 +616,19 @@ function stopCommunityUpdates(): void {
     clearInterval(communityUpdateTimer);
     communityUpdateTimer = null;
   }
+}
+
+
+function applyControlInterfaceScale(): void {
+  if (!controlWindow || controlWindow.isDestroyed()) return;
+  const display = screen.getDisplayMatching(controlWindow.getBounds());
+  const factor = resolveInterfaceScale(
+    preferences.interfaceScale,
+    display.bounds.width,
+    display.bounds.height,
+    display.scaleFactor,
+  );
+  controlWindow.webContents.setZoomFactor(factor);
 }
 
 function showControlCenter(): void {

@@ -288,3 +288,99 @@ body.is-editing .module-frame[data-module-id="com.apexhud.radar"], body.is-editi
 }
 .toolbar-drag-handle,
 .inspector-drag-handle { user-select: none; touch-action: none; }
+
+/* Resolution-independent scaling.
+   Module bounds remain untouched. Only the module viewport is rendered at an
+   inverse logical size and then scaled back to the original frame. */
+.module-scale-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.module-scale-stage > .module-iframe,
+.module-scale-stage > .native-module-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The editor chrome uses explicit resolved pixel metrics instead of scaling
+   the overlay document. This keeps panels inside the screen and never changes
+   the coordinate system used by HUD modules. */
+.editor-toolbar {
+  top: var(--editor-toolbar-top, 12px);
+  min-height: var(--editor-toolbar-min-height, 50px);
+  gap: var(--editor-toolbar-gap, 5px);
+  padding: var(--editor-toolbar-padding, 6px);
+  border-radius: var(--editor-toolbar-radius, 9px);
+}
+.toolbar-drag-handle {
+  height: var(--editor-handle-height, 36px);
+  gap: var(--editor-handle-gap, 6px);
+  font-size: var(--editor-handle-font, 9px);
+}
+.toolbar-drag-handle i { font-size: var(--editor-handle-icon-font, 15px); }
+.editor-dropdown-trigger {
+  min-width: var(--editor-dropdown-width, 118px);
+  height: var(--editor-dropdown-height, 36px);
+}
+.editor-dropdown.scenario .editor-dropdown-trigger {
+  min-width: var(--editor-dropdown-scenario-width, 126px);
+}
+.editor-dropdown-trigger small { font-size: var(--editor-dropdown-label-font, 7px); }
+.editor-dropdown-trigger b { font-size: var(--editor-dropdown-value-font, 9px); }
+.toolbar-button {
+  min-height: var(--editor-toolbar-button-height, 36px);
+  font-size: var(--editor-toolbar-button-font, 9px);
+}
+.telemetry-pill {
+  height: var(--editor-telemetry-height, 30px);
+  font-size: var(--editor-telemetry-font, 8px);
+}
+.editor-inspector {
+  top: var(--editor-inspector-top, 74px);
+  right: var(--editor-inspector-right, 12px);
+  width: min(var(--editor-inspector-width, 282px), calc(100vw - 24px));
+  max-height: calc(100vh - var(--editor-inspector-top, 74px) - 14px);
+  padding: 0 var(--editor-inspector-padding, 13px) var(--editor-inspector-padding, 13px);
+  border-radius: var(--editor-inspector-radius, 9px);
+}
+.editor-inspector header.inspector-drag-handle {
+  min-height: var(--editor-inspector-header-height, 52px);
+  margin-inline: calc(0px - var(--editor-inspector-padding, 13px));
+}
+.inspector-title small { font-size: var(--editor-inspector-title-small, 7px); }
+.inspector-title b { font-size: var(--editor-inspector-title, 12px); }
+.setting-row { min-height: var(--editor-setting-row-height, 50px); }
+.setting-heading { font-size: var(--editor-setting-font, 9px); }
+.setting-heading small { font-size: var(--editor-setting-help-font, 8px); }
+.setting-input {
+  width: var(--editor-setting-input-width, 96px);
+  min-height: var(--editor-setting-input-height, 29px);
+  font-size: var(--editor-setting-font, 9px);
+}
+.setting-dropdown { width: calc(var(--editor-setting-input-width, 96px) + 12px); }
+.setting-dropdown-trigger { min-height: var(--editor-setting-input-height, 29px); font-size: var(--editor-setting-help-font, 8px); }
+.range-control input { width: calc(var(--editor-setting-input-width, 96px) - 14px); }
+.color-control { width: calc(var(--editor-setting-input-width, 96px) + 10px); }
+.add-menu {
+  width: min(var(--editor-add-menu-width, 320px), calc(100vw - 16px));
+  max-height: calc(100vh - var(--editor-toolbar-min-height, 50px) - 32px);
+}
+.add-menu-title,
+.add-menu-item small { font-size: var(--editor-add-menu-font, 9px); }
+.add-menu-item b { font-size: calc(var(--editor-add-menu-font, 9px) + 1px); }
+.add-icon { width: var(--editor-add-icon-size, 30px); height: var(--editor-add-icon-size, 30px); }
+.module-edit-chrome {
+  top: calc(0px - var(--editor-module-chrome-offset, 32px));
+  height: var(--editor-module-chrome-height, 28px);
+  font-size: var(--editor-module-chrome-font, 10px);
+}
+.module-resize-handle {
+  width: var(--editor-module-resize-size, 16px);
+  height: var(--editor-module-resize-size, 16px);
+}
